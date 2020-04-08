@@ -1,6 +1,6 @@
 # 游戏常量定义
 class Properties:
-    MAZE_LEN = 11       # 迷宫矩阵边长（大于3的奇数）
+    MAZE_LEN = 9       # 迷宫矩阵边长（大于3的奇数）
     FPS = 60            # 游戏帧率
     TREASURE_NUM = 0    # 奖励单元出现个数（需要与路单元格奖励值同时为零或者同时非零）
     TREASURE_PATE = 0   # 奖励单元在全图出现概率
@@ -56,6 +56,7 @@ class Strings:
     SARSA = "Sarsa"                 # Sarsa算法学习按钮
     S_LAMBDA = "Sarsa(λ)"           # Sarsa(λ)算法学习按钮
     DQN = "DQN"
+    Double_DQN = "DoubleDQN"
 
 
 # 按钮状态位
@@ -78,6 +79,9 @@ class Font:
 
 # 图片路径
 class Img:
-    normal = "imgs/normal.png"
-    active = "imgs/active.png"
-    down = "imgs/down.png"
+    short_normal = "imgs/normal.png"
+    short_active = "imgs/active.png"
+    short_down = "imgs/down.png"
+    long_normal = "imgs/long_normal.png"
+    long_active = "imgs/long_active.png"
+    long_down = "imgs/long_down.png"

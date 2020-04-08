@@ -35,18 +35,21 @@ class MazeEnv:
         self.screen = py.display.set_mode(Size.WINDOW)          # 设置pygame窗体大小
         py.display.set_caption(Strings.TITLE)                   # 设置窗口标题
         self.button_font = py.font.SysFont(Font.ENG, 18, bold=True)         # 设置按钮文本字体
-        self._load_img_()                                       # 加载按钮图片
+        self._load_img()                                       # 加载按钮图片
         self.buttons = list()                                   # 按钮集合
         # print('Init reward_table:')
         # print(self.reward_table)                                # 打印reward_table表
 
-    def _load_img_(self):
+    def _load_img(self):
         """
         # 加载按钮图片
         """
-        self.normal = py.image.load(Img.normal).convert()
-        self.active = py.image.load(Img.active).convert()
-        self.down = py.image.load(Img.down).convert()
+        self.short_normal = py.image.load(Img.short_normal).convert()
+        self.short_active = py.image.load(Img.short_active).convert()
+        self.short_down = py.image.load(Img.short_down).convert()
+        self.long_normal = py.image.load(Img.long_normal).convert()
+        self.long_active = py.image.load(Img.long_active).convert()
+        self.long_down = py.image.load(Img.long_down).convert()
 
     def _append_line(self, line, name):
         """

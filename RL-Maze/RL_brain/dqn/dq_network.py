@@ -18,10 +18,11 @@ class DeepQNetwork:
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=30,
-            memory_size=1000,
-            batch_size=32,
+            memory_size=1000,       # 默认记忆库存放数据量大小
+            batch_size=30,          # 默认提取记忆块的大小
             e_greedy_increment=None,
-            output_graph=False
+            double_q=False,         # 默认为普通DQN算法，而非Double_DQN
+            output_graph=False      # 默认不生成tensorflow数据流图
     ):
         """
 
@@ -46,6 +47,7 @@ class DeepQNetwork:
         self.memory_size = memory_size
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
+        self.double_q = double_q
         self.epsilon = 0.5 if e_greedy_increment is not None else self.epsilon_max
 
         # 记录学习了多少步
@@ -70,7 +72,7 @@ class DeepQNetwork:
 
         if output_graph:
             # $ tensorboard --logdir=logs
-            # tf.train.SummaryWriter soon be deprecated, use following
+            # 输出tensorflow数据流结构图，并通过终端使用上述命令，进入浏览器查看
             tf.summary.FileWriter("RL_brain/dqn/logs/", self.sess.graph)
 
         self.sess.run(tf.global_variables_initializer())
@@ -99,7 +101,7 @@ class DeepQNetwork:
             with tf.variable_scope('l2'):
                 w2 = tf.get_variable('w2', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
                 b2 = tf.get_variable('b2', [1, self.n_actions], initializer=b_initializer, collections=c_names)
-                self.q_eval = tf.matmul(l1, w2) + b2
+                self.q_eval = tf.matmul(l1, w2) + b2        # Q估计：有多少个行为输出多少个
 
         with tf.variable_scope('loss'):     # 求误差
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
@@ -140,7 +142,7 @@ class DeepQNetwork:
 
         # 当索引超过记忆库大小，就返回0行重新开始覆盖旧的记忆
         index = self.memory_counter % self.memory_size
-        # print('index=%s\ntransition=%s\nmemory=\n%s' % (index, transition, self.memory))
+        # print('transition=%s\n' % transition)
         self.memory.iloc[index, :] = transition
 
         self.memory_counter += 1
@@ -154,6 +156,7 @@ class DeepQNetwork:
         :return:
         """
         rt = reward_table.T
+        # print("state=%s" % state)
         columns = rt.loc[rt[str(state)] != CellWeight.STOP, :].index.astype(int)
 
         observation = np.array(list(state))
@@ -168,14 +171,14 @@ class DeepQNetwork:
                 name=str(state)
             )
         )
-        # print(action_value)
-        # print('可选动作集合：%s   是否随机：%s' % (columns, random))
+        print(action_value)
         av = action_value.T
         if random:
             random_i = np.random.choice(columns)
         else:
             maxnum = av[str(state)].loc[columns].max()
             random_i = np.random.choice(av.loc[av[str(state)] == maxnum, :].index)
+        print('action list : %s  choose : %s  random :%s' % (list(columns), random_i, random))
         return random_i
 
     def choose_action(self, reward_table, state):
@@ -192,7 +195,7 @@ class DeepQNetwork:
         # 先确定是否需要进行t_target和e_target参数的替换
         if self.learn_step_counter % self.replace_target_iter == 0:
             self.sess.run(self.replace_target_op)
-            print('\ntarget_params_replaced\n')
+            print('target_params_replaced')
 
         # 调用记忆库中的记忆
         if self.memory_counter > self.memory_size:
@@ -204,15 +207,16 @@ class DeepQNetwork:
         batch_memory = self.memory.iloc[sample_index, :]     # 抽取的记忆数据集合
 
         # q_next: q_target网络输出的所有动作的值; q_eval: q_eval网络输出的所有值
-        q_next, q_eval = self.sess.run(
+        q_next, q_eval4next = self.sess.run(
             [self.q_next, self.q_eval],
             feed_dict={
                 self.s_: batch_memory.iloc[:, -self.n_features:],  # 抽取的记忆块中后n_features列数据，
                 # 此程序中即(observation, action, reward, observation_)中保存observation_的后两列
-                self.s: batch_memory.iloc[:, :self.n_features],  # 抽取的记忆块中前n_features列数据，
+                self.s: batch_memory.iloc[:, :self.n_features]  # 抽取的记忆块中前n_features列数据，
                 # 此程序中即(observation, action, reward, observation_)中保存observation的前两列
             })
 
+        q_eval = self.sess.run(self.q_eval, {self.s: batch_memory.iloc[:, :self.n_features]})
         # change q_target w.r.t q_eval's action
         q_target = q_eval.copy()
 
@@ -234,7 +238,12 @@ class DeepQNetwork:
         eval_act_index = batch_memory.iloc[:, self.n_features].astype(int)
         reward = batch_memory.iloc[:, self.n_features + 1]
 
-        q_target[batch_index, eval_act_index] = reward + self.gamma * np.max(q_next, axis=1)
+        if self.double_q:       # Double DQN
+            max_act4next = np.argmax(q_eval4next, axis=1)
+            selected_q_next = q_next[batch_index, max_act4next]
+        else:                   # DQN
+            selected_q_next = np.max(q_next, axis=1)
+        q_target[batch_index, eval_act_index] = reward + self.gamma * selected_q_next
 
         """
                假如在这个 batch 中, 我们有2个提取的记忆, 根据每个记忆可以生产3个 action 的值:
