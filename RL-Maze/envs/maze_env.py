@@ -313,12 +313,11 @@ class MazeEnv:
         self._init_reward_table()
         return self.agent
 
-    def agent_step(self, action, network=False):
+    def agent_step(self, action):
         """
         # 智能体按照所选动作进行状态转移，包括地图中智能体位置坐标转移
         :param action: 所选动作
         :return: state:转移后的新状态 reward:转移后的及时回报奖励值 dead:当前状态是否撞到墙壁
-        :param network: 是否为神经网络智能体的移动，默认为False
         """
         self.back_agent = copy.deepcopy(self.agent)             # 走下一步之前保存原来位置
         if action == Direction.UP:

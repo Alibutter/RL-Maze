@@ -4,7 +4,7 @@ from RL_brain.q.q_learning import QL
 from RL_brain.sarsa.sarsa_learning import Sarsa
 from RL_brain.sarsa_lambda.sarsa_lambda import SarsaLambda
 from RL_brain.dqn.dqn_learning import DQN
-from RL_brain.dqn.double_dqn import DoubleDQN
+from RL_brain.double_dqn.double_dqn import DoubleDQN
 
 
 if __name__ == '__main__':
