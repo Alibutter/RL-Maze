@@ -137,14 +137,20 @@ class MazeEnv:
         for button in self.buttons:
             button.draw(self.screen)
 
-    def _buttons_focus(self, x, y):
+    def _is_focus(self, x, y):
+        for button in self.buttons:
+            if button.is_focus(x, y):
+                return True
+        return False
+
+    def _buttons_on(self, x, y):
         """
         按钮获得焦点状态监测
         :param x: 鼠标x坐标
         :param y: 鼠标y坐标
         """
         for button in self.buttons:
-            button.get_focus(x, y)
+            button.mouse_on(x, y)
 
     def _buttons_down(self, x, y):
         """
@@ -160,7 +166,7 @@ class MazeEnv:
         按钮抬起监测
         """
         for button in self.buttons:
-            if not button.is_active(x, y):
+            if not button.is_focus(x, y):
                 button.status = Status.NORMAL
             button.mouse_up()
 
@@ -181,14 +187,13 @@ class MazeEnv:
             if event.type == QUIT:
                 sys.exit()
             elif event.type == py.MOUSEMOTION:              # 鼠标移动
-                self._buttons_focus(mouse_x, mouse_y)
+                self._buttons_on(mouse_x, mouse_y)
             elif event.type == py.MOUSEBUTTONDOWN:
                 if py.mouse.get_pressed() == (1, 0, 0):     # 鼠标左键按下
                     self._buttons_down(mouse_x, mouse_y)
-                    continue
             elif event.type == py.MOUSEBUTTONUP:            # 鼠标按键弹起
-                self._buttons_up(mouse_x, mouse_y)
-                continue
+                if self._is_focus(mouse_x, mouse_y):
+                    self._buttons_up(mouse_x, mouse_y)
 
     def _draw_cell(self, rgb, row, col, cell_size, cell_padding):
         """

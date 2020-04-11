@@ -49,7 +49,7 @@ class Button:
             screen.blit(self.imgs[self.status], (self.y, self.x))
         screen.blit(self.button_text, (self.y + padding_y, self.x + padding_x))
 
-    def is_active(self, mouse_x, mouse_y):
+    def is_focus(self, mouse_x, mouse_y):
         """
         鼠标指针是否在按钮上
         :param mouse_x: 鼠标x坐标
@@ -61,13 +61,13 @@ class Button:
         else:
             return False
 
-    def get_focus(self, mouse_x, mouse_y):
+    def mouse_on(self, mouse_x, mouse_y):
         """
         按钮获得焦点，更新按钮状态
         :param mouse_x: 鼠标x坐标
         :param mouse_y: 鼠标y坐标
         """
-        if self.is_active(mouse_x, mouse_y) and not self.status == Status.DOWN:
+        if self.is_focus(mouse_x, mouse_y) and not self.status == Status.DOWN:
             self.status = Status.ACTIVE
         elif self.status == Status.DOWN:
             return
@@ -80,12 +80,12 @@ class Button:
         :param mouse_x: 鼠标x坐标
         :param mouse_y: 鼠标y坐标
         """
-        if self.is_active(mouse_x, mouse_y):
+        if self.is_focus(mouse_x, mouse_y):
             self.status = Status.DOWN
 
     def mouse_up(self):
         """
-        鼠标抬起恢复状态位
+        鼠标抬起执行函数
         :return: 执行按下按钮的调用函数
         """
         if self.status == Status.DOWN:

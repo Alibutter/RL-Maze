@@ -13,7 +13,7 @@ class CellWeight:
     ROAD = 0           # 路
     WALL = -5          # 墙
     TREASURE = 100      # 奖励
-    FINAL = 500        # 终点
+    FINAL = 1000        # 终点
     STOP = -99        # 禁止通行(用于设置Q_Table地图边界位置处不可选择的方向action)
 
 

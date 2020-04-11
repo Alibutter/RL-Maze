@@ -20,7 +20,7 @@ class QL:
         button = self.env.find_button_by_name(Strings.Q_LEARN)
         for episode in range(1000):
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
-                print("Q-Learning has been stopped by being interrupted")
+                # print("Q-Learning has been stopped by being interrupted")
                 return
             step = 0                                                                # 记录智能体移动步数
             while button.status is Status.DOWN:
@@ -28,7 +28,7 @@ class QL:
                 self.env.update_map()                                               # 环境地图界面刷新
 
                 if not self.env.QT or not isinstance(self.env.QT, QTable):          # 检查是否因为切换按钮导致Env中的QT对象发生变换
-                    print('MazeEnv.QT is None after refresh or its type is not QTable, Q-Learning is stopped')
+                    # print('MazeEnv.QT is None after refresh or its type is not QTable, Q-Learning is stopped')
                     return
 
                 action = self.env.QT.choose_action(self.env, str(self.env.agent))   # 通过强化学习算法选择智能体当前状态下的动作

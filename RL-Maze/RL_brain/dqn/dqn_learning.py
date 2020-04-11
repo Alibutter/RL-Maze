@@ -21,7 +21,7 @@ class DQN:
                                    learning_rate=0.01,
                                    reward_decay=0.9,
                                    e_greedy=0.9,
-                                   replace_target_iter=200,
+                                   replace_target_iter=30,
                                    memory_size=1000,
                                    batch_size=80,
                                    # e_greedy_increment=0.05,       # 是否按照指定增长率 动态设置增长epsilon
@@ -29,7 +29,9 @@ class DQN:
                                    )
         print("----------Reinforcement Learning with DQN-Learning start:----------")
         self.update()
-        # self.env.QT.plot_cost()
+        if not self.env.QT or not isinstance(self.env.QT, DeepQNetwork):  # 检查是否因为切换按钮导致Env中的QT对象发生变换
+            return
+        # self.env.QT.plot_lost()       # 展示loss曲线
 
     def update(self):
         button = self.env.find_button_by_name(Strings.DQN)
@@ -38,14 +40,14 @@ class DQN:
         exit_time = 0
         for episode in range(1000):
             if not button.status == Status.DOWN:  # 检查按钮状态变化（控制算法执行的开关）
-                print("DQN-Learning has been stopped by being interrupted")
+                # print("DQN-Learning has been stopped by being interrupted")
                 return
             while button.status is Status.DOWN:
 
                 self.env.update_map()  # 环境地图界面刷新
 
                 if not self.env.QT or not isinstance(self.env.QT, DeepQNetwork):  # 检查是否因为切换按钮导致Env中的QT对象发生变换
-                    print('MazeEnv.QT is None after refresh or its type is not DeepQNetwork, DQN-Learning is stopped')
+                    # print('MazeEnv.QT is None after refresh or its type is not DeepQNetwork, DQN-Learning is stopped')
                     return
 
                 action = self.env.QT.choose_action(self.env.reward_table, self.env.agent)  # 通过强化学习算法选择智能体当前状态下的动作

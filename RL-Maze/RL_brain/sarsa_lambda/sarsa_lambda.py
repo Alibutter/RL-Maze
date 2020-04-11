@@ -20,7 +20,7 @@ class SarsaLambda:
         button = self.env.find_button_by_name(Strings.S_LAMBDA)
         for episode in range(1000):
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
-                print("Sarsa(λ) has been stopped by being interrupted")
+                # print("Sarsa(λ) has been stopped by being interrupted")
                 return
             step = 0                                                                # 记录智能体移动步数
             action = self.env.QT.choose_action(self.env, str(self.env.agent))       # 选择智能体当前状态下的动作
@@ -30,7 +30,7 @@ class SarsaLambda:
                 self.env.update_map()                                               # 环境地图界面刷新
 
                 if not self.env.QT or not isinstance(self.env.QT, STable):
-                    print('MazeEnv.QT is None after refresh or its type is not STable, Sarsa(λ) is stopped')
+                    # print('MazeEnv.QT is None after refresh or its type is not STable, Sarsa(λ) is stopped')
                     return
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
@@ -60,9 +60,9 @@ class SarsaLambda:
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
                           .format(episode + 1, step, terminal, score))
                     break
-                elif step >= 500:
+                elif step >= 1000:
                     score = get_score(step, 0)
-                    print('{0} time episode has been <!SHUTDOWN!> with using more than {1} steps at the score {2}'
+                    print('{0} time episode has been failed and <!SHUTDOWN!> with using more than {1} steps at the score {2}'
                           .format(episode + 1, step, score))
                     break
 

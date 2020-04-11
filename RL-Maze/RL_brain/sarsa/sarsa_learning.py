@@ -20,7 +20,7 @@ class Sarsa:
         button = self.env.find_button_by_name(Strings.SARSA)
         for episode in range(1000):
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
-                print("Sarsa has been stopped by being interrupted")
+                # print("Sarsa has been stopped by being interrupted")
                 return
             step = 0                                                                # 记录智能体移动步数
             action = self.env.QT.choose_action(self.env, str(self.env.agent))       # 选择智能体当前状态下的动作
@@ -30,7 +30,7 @@ class Sarsa:
                 self.env.update_map()                                               # 环境地图界面刷新
 
                 if not self.env.QT or not isinstance(self.env.QT, QTable):          # 检查是否因为切换按钮导致Env中的QT对象发生变换
-                    print('MazeEnv.QT is None after refresh or its type is not QTable, Sarsa is stopped')
+                    # print('MazeEnv.QT is None after refresh or its type is not QTable, Sarsa is stopped')
                     return
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
