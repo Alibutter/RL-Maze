@@ -164,7 +164,7 @@ class DeepQNetwork:
         if self.learn_step_counter % self.params['replace_target_iter'] == 0:
             for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
                 target_layer.set_weights(eval_layer.get_weights())
-            print('\ntarget_params_replaced\n')
+            print('***target_model params replaced***')
 
         # 训练eval_model网络
         self.loss = self.eval_model.train_on_batch(batch_memory.iloc[:, :self.params['n_features']], q_target)
