@@ -57,6 +57,14 @@ class Strings:
     S_LAMBDA = "Sarsa(λ)"           # Sarsa(λ)算法学习按钮
     DQN = "DQN"
     Double_DQN = "DoubleDQN"
+    START = "Start"
+    ABOUT = "About"
+    EXIT = "Exit"
+    BACK = "Back"
+    YTU = "Yantai University"
+    GRADE = "Computer and control engineering college"
+    CLASS = "in Class 163-2"
+    OWNER = "Developer: Yongjie Zhao"
 
 
 # 按钮状态位
@@ -75,6 +83,13 @@ class Font:
     FS = 'stfangsong'
     YT = 'fzyaoti'
     ENG = 'adobesongstdlightopentype'
+    A = 'pristina'
+    B = 'papyrus'
+    C = 'mistral'
+    D = 'lucidahandwriting'
+    E = 'kristenitc'
+    F = 'juiceitc'
+    G = 'frenchscript'
 
 
 # 图片路径
@@ -85,3 +100,4 @@ class Img:
     long_normal = "imgs/long_normal.png"
     long_active = "imgs/long_active.png"
     long_down = "imgs/long_down.png"
+    bg = "imgs/RL.png"

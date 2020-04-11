@@ -1,5 +1,4 @@
 import sys
-import pygame as py
 import copy
 import pandas as pd
 import numpy as np
@@ -8,20 +7,15 @@ from tools.config import *
 from tools.button import Button
 from envs.maze_creator import maze_creator
 
-# 查看pygame中可用的系统字体
-# for font in py.font.get_fonts():
-#     print(font)
-
 
 class MazeEnv:
-    def __init__(self):
+    def __init__(self, py, screen):
         # 状态中可选动作集合
         self.action_space = [str(Direction.LEFT), str(Direction.UP), str(Direction.RIGHT), str(Direction.DOWN)]
         self.n_actions = len(self.action_space)
         self.n_features = 2
         self.QT = None                                          # 用于强化学习的Q_Table表
         self.refresh = False                                    # 刷新地图标志位
-        # self.func_call_check = False                            # 函数循环调用启动标志位
         self.map, self.begin, self.end = maze_creator(Properties.MAZE_LEN, Properties.MAZE_LEN, Properties.TREASURE_NUM,
                                                       Properties.TREASURE_PATE)    # 迷宫初始化
         self.agent = copy.deepcopy(self.begin)                  # 标记智能体位置
@@ -29,13 +23,12 @@ class MazeEnv:
         self.weight_table = copy.deepcopy(self.map.maze)        # 迷宫地图权值表，用于保存初试迷宫地图，智能体移动过程中的单元格恢复
         self.weight_table[1][0] = CellWeight.ROAD               # 将起点权值置为ROAD
         self.reward_table = None                                # 动作奖励值表
-        self._init_reward_table()                                # 初始化迷宫地图动作奖励值表，用于Q_Table计算
-        self.clock = py.time.Clock()
-        py.init()                                               # pygame初始化
-        self.screen = py.display.set_mode(Size.WINDOW)          # 设置pygame窗体大小
-        py.display.set_caption(Strings.TITLE)                   # 设置窗口标题
-        self.button_font = py.font.SysFont(Font.ENG, 18, bold=True)         # 设置按钮文本字体
-        self._load_img()                                       # 加载按钮图片
+        self._init_reward_table()                               # 初始化迷宫地图动作奖励值表，用于Q_Table计算
+        self.py = py
+        self.clock = self.py.time.Clock()
+        self.button_font = self.py.font.SysFont(Font.ENG, 18, bold=True)         # 设置按钮文本字体
+        self.screen = screen
+        self._load_img()                                        # 加载按钮图片
         self.buttons = list()                                   # 按钮集合
         # print('Init reward_table:')
         # print(self.reward_table)                                # 打印reward_table表
@@ -44,12 +37,12 @@ class MazeEnv:
         """
         # 加载按钮图片
         """
-        self.short_normal = py.image.load(Img.short_normal).convert()
-        self.short_active = py.image.load(Img.short_active).convert()
-        self.short_down = py.image.load(Img.short_down).convert()
-        self.long_normal = py.image.load(Img.long_normal).convert()
-        self.long_active = py.image.load(Img.long_active).convert()
-        self.long_down = py.image.load(Img.long_down).convert()
+        self.short_normal = self.py.image.load(Img.short_normal).convert()
+        self.short_active = self.py.image.load(Img.short_active).convert()
+        self.short_down = self.py.image.load(Img.short_down).convert()
+        self.long_normal = self.py.image.load(Img.long_normal).convert()
+        self.long_active = self.py.image.load(Img.long_active).convert()
+        self.long_down = self.py.image.load(Img.long_down).convert()
 
     def _append_line(self, line, name):
         """
@@ -182,16 +175,16 @@ class MazeEnv:
         """
         开启鼠标监听
         """
-        mouse_y, mouse_x = py.mouse.get_pos()               # 获取鼠标当前位置
-        for event in py.event.get():
+        mouse_y, mouse_x = self.py.mouse.get_pos()               # 获取鼠标当前位置
+        for event in self.py.event.get():
             if event.type == QUIT:
                 sys.exit()
-            elif event.type == py.MOUSEMOTION:              # 鼠标移动
+            elif event.type == self.py.MOUSEMOTION:              # 鼠标移动
                 self._buttons_on(mouse_x, mouse_y)
-            elif event.type == py.MOUSEBUTTONDOWN:
-                if py.mouse.get_pressed() == (1, 0, 0):     # 鼠标左键按下
+            elif event.type == self.py.MOUSEBUTTONDOWN:
+                if self.py.mouse.get_pressed() == (1, 0, 0):     # 鼠标左键按下
                     self._buttons_down(mouse_x, mouse_y)
-            elif event.type == py.MOUSEBUTTONUP:            # 鼠标按键弹起
+            elif event.type == self.py.MOUSEBUTTONUP:            # 鼠标按键弹起
                 if self._is_focus(mouse_x, mouse_y):
                     self._buttons_up(mouse_x, mouse_y)
 
@@ -207,7 +200,7 @@ class MazeEnv:
         y = cell_padding + row * cell_size + Size.HEADER                    # 单元格左上角y坐标
         x = cell_padding + col * cell_size                                  # 单元格左上角x坐标
         rect = ((x, y), (cell_size - 1, cell_size - 1))                     # 单元格边长-1，用于单元格之间留边
-        py.draw.rect(self.screen, rgb, rect)
+        self.py.draw.rect(self.screen, rgb, rect)
 
     def draw_map(self):
         """
@@ -226,7 +219,7 @@ class MazeEnv:
             self._init_reward_table()                                    # 更新reward_table表
 
         self.screen.fill(Color.BLUE)                                    # 填充背景色
-        py.draw.rect(self.screen, Color.WHITE, ((0, 0), (600, 30)))     # 绘制上方按钮矩形区域
+        self.py.draw.rect(self.screen, Color.WHITE, ((0, 0), (600, 30)))     # 绘制上方按钮矩形区域
         cell_size = int(Size.WIDTH / self.map.width)                    # 计算单元格大小和四周边距
         cell_padding = (Size.WIDTH - (cell_size * self.map.width)) / 2
         for row in range(self.map.height):
@@ -248,28 +241,9 @@ class MazeEnv:
         """
         self.draw_map()                     # 绘制迷宫地图
         self.draw_buttons()                 # 绘制所有按钮
-        self._mouse_listener()               # 开启鼠标监听
-        py.display.update()                 # 更新画面
+        self._mouse_listener()              # 开启鼠标监听
+        self.py.display.update()            # 更新画面
         self.clock.tick(Properties.FPS)     # 控制帧率
-
-    def func_call(self, sec, func=None, **kwargs):
-        """
-        按照指定时间间隔，循环调用目标函数
-        :param sec: 目标函数被调用的间隔时间
-        :param func: 要调用的函数
-        :param kwargs: 被调函数所需参数
-        """
-        if func:
-            while True:
-                # if self.func_call_check:
-                func(**kwargs)
-                py.time.delay(sec)
-                # else:
-                #     print('func_call times has been stopped')
-                #     break
-        else:
-            print('Error:func_call is None')
-        return
 
     def _update_draw_agent_cell(self, action):
         """
@@ -347,7 +321,7 @@ class MazeEnv:
             state = 'terminal'
         else:
             state = copy.deepcopy(self.agent)
-        py.time.wait(10)
+        self.py.time.wait(10)
         self._update_draw_agent_cell(action)
         # print('return state-->{0} reward-->{1}'.format(state, cur_reward))
         # print('back:%s --%s--> current:%s  reward:%s' % (self.back_agent, action, self.agent, cur_reward))
