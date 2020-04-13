@@ -138,14 +138,14 @@ class Collect:
         self.double_loss_clear()
 
     def add_dqn_loss(self, loss):
-        print("add dqn_loss=%s:" % loss)
+        # print("add dqn_loss=%s:" % loss)
         self.dqn_loss_his.append(loss)
 
     def dqn_loss_clear(self):
         self.dqn_loss_his = []
 
     def add_double_loss(self, loss):
-        print("add double_loss=%s:" % loss)
+        # print("add double_loss=%s:" % loss)
         self.double_loss_his.append(loss)
 
     def double_loss_clear(self):
@@ -386,11 +386,12 @@ class Collect:
         """
         # self.store_all_lines()                              # 将当前所有学习曲线保存
         if self.adjust_params:
+            self.figure_different_loss_compared()                  # DQN与DoubleDQN在当前环境中的loss曲线对比
             self.figure_self_loss_compared()                       # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
         else:
             self.figure_different_scores_steps_compared()          # 不同算法的步长与得分曲线对比
             self.figure_self_scores_compared()                     # 同一算法在不同迷宫环境的得分曲线对比
-            self.figure_different_loss_compared()                  # DQN与DoubleDQN在同一环境中的loss曲线对比
+            self.figure_different_loss_compared()                  # DQN与DoubleDQN在当前环境中的loss曲线对比
             self.figure_self_loss_compared()                       # DQN与DoubleDQN在不同环境中的loss曲线自我对比
         # self.all_params_his_clear()                         # 将当前所有学习曲线
         plt.show()
@@ -421,7 +422,6 @@ def algorithm_analysis(title, line_his, loss=False):
             plt.plot(np.arange(len(q)), q, color=color[i], label=line_label + str(i))
             i += 1
         plt.legend()                        # 显示图例说明Label标签
-    plt.ylim(-1000, CellWeight.FINAL)
     plt.title(title, fontsize=10)
     plt.ylabel(y_label, fontsize=10)
     plt.xlabel(x_label, fontsize=10)
