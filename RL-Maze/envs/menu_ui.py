@@ -1,7 +1,7 @@
 import sys
-from pygame.locals import *
-from tools.config import *
+from pygame.locals import QUIT
 from tools.button import Button
+from tools.config import Img, Font, Status, Properties
 
 
 class Menu:

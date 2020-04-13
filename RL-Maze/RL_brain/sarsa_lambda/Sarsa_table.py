@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from tools.config import *
+from tools.config import CellWeight
 
 
 class STable:

@@ -2,14 +2,14 @@ import sys
 import copy
 import pandas as pd
 import numpy as np
-from pygame.locals import *
+from pygame.locals import QUIT
 from tools.config import *
 from tools.button import Button
 from envs.maze_creator import maze_creator
 
 
 class MazeEnv:
-    def __init__(self, py, screen):
+    def __init__(self, py, screen, collections=None):
         # 状态中可选动作集合
         self.action_space = [str(Direction.LEFT), str(Direction.UP), str(Direction.RIGHT), str(Direction.DOWN)]
         self.n_actions = len(self.action_space)
@@ -28,6 +28,7 @@ class MazeEnv:
         self.clock = self.py.time.Clock()
         self.button_font = self.py.font.SysFont(Font.ENG, 18, bold=True)         # 设置按钮文本字体
         self.screen = screen
+        self.collections = collections                          # 是否收集数据，是则需要刷新地图时清空collections
         self._load_img()                                        # 加载按钮图片
         self.buttons = list()                                   # 按钮集合
         # print('Init reward_table:')
@@ -43,6 +44,7 @@ class MazeEnv:
         self.long_normal = self.py.image.load(Img.long_normal).convert()
         self.long_active = self.py.image.load(Img.long_active).convert()
         self.long_down = self.py.image.load(Img.long_down).convert()
+        self.table = self.py.image.load(Img.table).convert()
 
     def _append_line(self, line, name):
         """
@@ -208,8 +210,9 @@ class MazeEnv:
         """
         if self.refresh:                                                # 检查刷新标志位，是否需要刷新
             self.refresh = False
-            # self.func_call_check = False
             self.QT = None
+            if self.collections:
+                self.collections.scores_compared_clear()                             # 清空collections收集的旧数据
             self.map, self.begin, self.end = maze_creator(Properties.MAZE_LEN, Properties.MAZE_LEN, Properties.TREASURE_NUM, Properties.TREASURE_PATE)
             self.agent = copy.deepcopy(self.begin)                      # 恢复智能体初始位置为迷宫起点
             self.back_agent = copy.deepcopy(self.agent)

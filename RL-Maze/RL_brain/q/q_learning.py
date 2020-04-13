@@ -1,17 +1,21 @@
-from tools.config import *
+from tools.config import Strings, CellWeight, Status
 from RL_brain.q.Q_table import QTable
 
 
 class QL:
-    def __init__(self, env):
+    def __init__(self, env, collections=None):
         self.env = env
+        self.collections = collections
 
     def q_learning_start(self):
         """
         开始Q-Learning算法强化学习，智能体移动
         """
+        self.env.agent_restart()                                                    # 先将智能体复位
         self.env.buttons_reset(Strings.Q_LEARN)                                     # 除按下的按钮外，将其他按钮状态恢复正常
         self.env.QT = None                                                          # 将Env中的QT对象置空
+        if self.collections:                                                        # 清空收集的旧数据
+            self.collections.q_params_clear()
         self.env.QT = QTable(actions=list(range(self.env.n_actions)))
         print("----------Reinforcement Learning with Q-Learning start:----------")
         self.update()
@@ -46,6 +50,8 @@ class QL:
                     else:
                         terminal = 'to WALL'
                         score = get_score(step, CellWeight.WALL)
+                    if self.collections:                                            # 收集数据绘制图表
+                        self.collections.add_q_param(step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
                           .format(episode + 1, step, terminal, score))
                     break

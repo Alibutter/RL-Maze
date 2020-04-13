@@ -5,16 +5,17 @@ class Properties:
     TREASURE_NUM = 0    # 奖励单元出现个数（需要与路单元格奖励值同时为零或者同时非零）
     TREASURE_PATE = 0   # 奖励单元在全图出现概率
     STEPS = 99999       # 智能体探索一次最大移动次数
+    LINES_MAX = 10      # 保存曲线的最大记录数
 
 
 # 迷宫格类型定义
 class CellWeight:
-    AGENT = -3         # 起点
+    AGENT = -3         # 起点(智能体)
     ROAD = 0           # 路
     WALL = -5          # 墙
-    TREASURE = 100      # 奖励
-    FINAL = 1000        # 终点
-    STOP = -99        # 禁止通行(用于设置Q_Table地图边界位置处不可选择的方向action)
+    TREASURE = 30      # 奖励
+    FINAL = 500        # 终点
+    STOP = -99         # 禁止通行(用于设置Q_Table地图边界位置处不可选择的方向action)
 
 
 # 墙的方向定义
@@ -55,14 +56,14 @@ class Strings:
     Q_LEARN = "QLearn"              # Q-Learning算法学习按钮
     SARSA = "Sarsa"                 # Sarsa算法学习按钮
     S_LAMBDA = "Sarsa(λ)"           # Sarsa(λ)算法学习按钮
-    DQN = "DQN"
-    Double_DQN = "DoubleDQN"
+    DQN = "DQN"                     # DQN 算法学习按钮
+    Double_DQN = "DoubleDQN"        # DoubleDQN 算法学习按钮
     START = "Start"
     ABOUT = "About"
     EXIT = "Exit"
     BACK = "Back"
     YTU = "Yantai University"
-    GRADE = "Computer and control engineering college"
+    GRADE = "School of Computer and control engineering"
     CLASS = "in Class 163-2"
     OWNER = "Developer: Yongjie Zhao"
 
@@ -101,3 +102,4 @@ class Img:
     long_active = "imgs/long_active.png"
     long_down = "imgs/long_down.png"
     bg = "imgs/RL.png"
+    table = "imgs/table_icon.png"

@@ -1,17 +1,21 @@
-from tools.config import *
+from tools.config import Strings, CellWeight, Status
 from RL_brain.sarsa_lambda.Sarsa_table import STable
 
 
 class SarsaLambda:
-    def __init__(self, env):
+    def __init__(self, env, collections=None):
         self.env = env
+        self.collections = collections
 
     def sarsa_lambda_start(self):
         """
         开始Sarsa算法强化学习，智能体移动
         """
+        self.env.agent_restart()                                                    # 先将智能体复位
         self.env.buttons_reset(Strings.S_LAMBDA)                                    # 除按下的按钮外，将其他按钮状态恢复正常
         self.env.QT = None                                                          # 将Env中的QT对象置空
+        if self.collections:                                                        # 清空收集的旧数据
+            self.collections.sl_params_clear()
         self.env.QT = STable(actions=list(range(self.env.n_actions)))
         print("----------Reinforcement Learning with Sarsa(λ) start:----------")
         self.update()
@@ -57,14 +61,18 @@ class SarsaLambda:
                     else:
                         terminal = 'to WALL'
                         score = get_score(step, CellWeight.WALL)
+                    if self.collections:                                            # 收集数据绘制图表
+                        self.collections.add_sl_param(step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
                           .format(episode + 1, step, terminal, score))
                     break
-                elif step >= 1000:
-                    score = get_score(step, 0)
-                    print('{0} time episode has been failed and <!SHUTDOWN!> with using more than {1} steps at the score {2}'
-                          .format(episode + 1, step, score))
-                    break
+                # elif step >= 600:
+                #     score = get_score(step, 0)
+                #     if self.collections:                                            # 收集数据绘制图表
+                #         self.collections.add_sl_param(step, score)
+                #     print('{0} time episode has been failed and <!SHUTDOWN!> with using more than {1} steps at the score {2}'
+                #           .format(episode + 1, step, score))
+                #     break
 
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
 

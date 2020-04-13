@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from tools.config import *
+from tools.config import CellWeight
 from tensorflow.keras.optimizers import RMSprop
 
 
@@ -14,6 +14,7 @@ class DeepQNetwork:
                  memory_size=1000,
                  batch_size=30,
                  e_greedy_increment=None,
+                 param_collect=None,
                  output_graph=False):
         """
         构建DeepQNetwork双神经网络，初始化参数
@@ -29,6 +30,7 @@ class DeepQNetwork:
         :param memory_size: 记忆库容量大小（即经验池大小）
         :param batch_size: 随机抽取记忆的记忆块大小
         :param e_greedy_increment: 按照指定增长率,设置动态增长的epsilon
+        :param param_collect: 是否需要收集loss数据绘制loss曲线，默认不收集
         :param output_graph: 是否生成tensorflow数据流图
         """
         self.params = {
@@ -42,7 +44,7 @@ class DeepQNetwork:
             'batch_size': batch_size,                       # 随机抽取记忆的记忆块大小
             'e_greedy_increment': e_greedy_increment        # 按照指定增长率,设置动态增长的epsilon
         }
-
+        self.collections = param_collect                    # 是否收集数据
         self.learn_step_counter = 0                         # 记录总的学习次数，即learn方法执行次数
 
         # 初始化置零的记忆库 [s, a, r, s_]
@@ -57,7 +59,7 @@ class DeepQNetwork:
             optimizer=RMSprop(lr=self.params['learning_rate']),
             loss='mse'
         )
-        self.lost_his = []                                  # 记录每一步的误差，在plot_cost()中观测误差曲线
+        # self.loss_his = []                                  # 记录每一步的误差，在plot_cost()中观测误差曲线
 
     def store_transition(self, s, a, r, s_):
         """
@@ -170,19 +172,13 @@ class DeepQNetwork:
         self.loss = self.eval_model.train_on_batch(batch_memory.iloc[:, :self.params['n_features']], q_target)
 
         # 记录误差
-        self.lost_his.append(self.loss)
+        if self.double_q:       # 记录DoubleDQN的误差
+            self.collections.add_double_loss(self.loss)
+        else:                   # 记录DQN的误差
+            self.collections.add_dqn_loss(self.loss)
 
         # 动态增长epsilon
         self.epsilon = self.epsilon + self.params['e_greedy_increment'] if self.epsilon < self.params['e_greedy'] \
             else self.params['e_greedy']
         self.learn_step_counter += 1        # 学习次数自增一
 
-    def plot_lost(self):
-        """
-        显示训练的loss曲线
-        """
-        import matplotlib.pyplot as plt
-        plt.plot(np.arange(len(self.lost_his)), self.lost_his)
-        plt.ylabel('Loss')
-        plt.xlabel('Training steps')
-        plt.show()
