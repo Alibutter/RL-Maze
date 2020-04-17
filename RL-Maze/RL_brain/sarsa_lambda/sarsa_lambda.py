@@ -40,9 +40,8 @@ class SarsaLambda:
 
                 action_ = self.env.QT.choose_action(self.env, str(self.env.agent))  # 在新状态下选择新的动作
 
-                self.env.QT.sarsa_lambda_learn(str(self.env.back_agent), action, reward, str(self.env.agent),
-                                               action_)                             # 强化学习更新Q表
-
+                self.env.QT.sarsa_lambda_learn(self.env, str(self.env.back_agent), action, reward,
+                                               str(self.env.agent), action_)                             # 强化学习更新Q表
                 action = action_                                                    # 替换旧的action
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束

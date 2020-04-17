@@ -8,4 +8,4 @@ Reinforcement Learning Maze with Q-Learning, Sarsa, Sarsa(λ) and Deep-Q-Network
 项目中使用numpy、pandas进行数据处理，使用tensorflow2.1.1-gpu版创建DQN算法神经网络，对应CUDA2.0版本。
 
 实现以上算法后，通过算法在随机迷宫地形中的寻路效率和路径优劣，对比不同算法在迷宫寻
-路问题中的差异，并找到改进方向。
+路问题中的差异。

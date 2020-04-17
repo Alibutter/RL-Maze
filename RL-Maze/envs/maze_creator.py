@@ -65,9 +65,13 @@ def random_pick(probability):
     :param probability: 触发概率大小
     :return: True:触发成功  False:触发失败
     """
-    p = [probability, 1-probability]
-    # return numpy.random.uniform() < probability/10
-    return numpy.random.choice([True, False], 1, False, p)[0]
+    if numpy.random.uniform() < probability:
+        return True
+    else:
+        return False
+    # p = [probability, 1-probability]
+    # # return numpy.random.uniform() < probability/10
+    # return numpy.random.choice([True, False], 1, False, p)[0]
 
 
 def random_delete_wall(maze, probability):
@@ -216,7 +220,7 @@ def set_treasure_by_amount(maze, amount):
             amount -= 1
 
 
-def maze_creator(width, height, amount, probability):
+def maze_creator(width, height, amount=None, probability=None):
     """
     开始构造地图矩阵，width，height必须为奇数
     :param width: 迷宫地图矩阵的宽
@@ -235,18 +239,21 @@ def maze_creator(width, height, amount, probability):
     begin, end = set_begin_end(maze)            # 设起点终点
     print('Maze map:')
     maze.print()                                # 打印迷宫矩阵
+    # ROAD 奖励值为0时，可用于5x5规模测试的固定迷宫
     # maze.maze = [[-5, -5, -5, -5, -5],
     #         [-3, 0, 0, 0, -5],
     #         [-5, 0, 5, 0, -5],
     #         [-5, 0, 0, 0, 500],
     #         [-5, -5, -5, -5, -5]]
 
+    # ROAD 奖励值为-1时，可用于5x5规模测试的固定迷宫
     # maze.maze = [[-5, -5, -5, -5, -5],
     #              [-3, -1, -1, -1, -5],
     #              [-5, -1, 5, -5, -5],
     #              [-5, -1, -1, -1, 500],
     #              [-5, -5, -5, -5, -5]]
 
+    # ROAD 奖励值为0时，可用于9x9规模测试的固定迷宫 1（单路口多，难走出）
     # maze.maze = [
     #     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
     #     [-3, 0, 0, 0, 0, 0, 0, 0, -5],
@@ -259,6 +266,46 @@ def maze_creator(width, height, amount, probability):
     #     [-5, -5, -5, -5, -5, -5, -5, -5, -5]
     # ]
 
+    # ROAD 奖励值为0时，可用于9x9规模测试的固定迷宫 2
+    # maze.maze = [
+    #     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    #     [-3, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, -5, -5, -5, -5, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, -5, -5, -5, -5, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, 500],
+    #     [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+    # ]
+
+    # ROAD 奖励值为0时，可用于9x9规模测试的固定迷宫 3（墙少的简单图）
+    # maze.maze = [
+    #     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    #     [-3, 0, 0, 0, 0, 0, -5, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, -5, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, -5, -5, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, 500],
+    #     [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+    # ]
+
+    # ROAD 奖励值为0时，可用于9x9规模测试的固定迷宫 4（墙少的简单图）
+    # maze.maze = [
+    #     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    #     [-3, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, -5, -5, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    #     [-5, 0, -5, 0, -5, -5, -5, 0, -5],
+    #     [-5, 0, -5, 0, 0, 0, -5, 0, 500],
+    #     [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+    # ]
+
+    # ROAD 奖励值为-1时，可用于9x9规模测试的固定迷宫
     # maze.maze = [
     #     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
     #     [-3, -1, -1, -1, -1, -1, -1, -1, -5],

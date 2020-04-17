@@ -4,7 +4,7 @@ from tools.config import CellWeight
 
 
 class STable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9, trace_decay=0):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9, trace_decay=0.9):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1
         self.gamma = reward_decay       # 贪婪因子，未来奖励的衰减值
@@ -13,9 +13,10 @@ class STable:
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)     # Q_table表初始化，记录学习的Q值
         self.e_table = self.q_table.copy()                                      # trace_table表初始化，记录路途的“不可或缺性”大小
 
-    def sarsa_lambda_learn(self, s, a, r, s_, a_):
+    def sarsa_lambda_learn(self, env, s, a, r, s_, a_):
         """
         Sarsa(λ)算法
+        :param env:
         :param s: 当前状态
         :param a: 当前状态下采取的动作
         :param r: 动作后的即时奖励
@@ -24,19 +25,20 @@ class STable:
         """
         self.check_state_exist(s_)
         p = r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a]
-        # self.e_table.loc[s, a] += 1
-
-        self.e_table.loc[s, :] *= 0
+        # self.e_table.loc[s, a] += 1                     # 对于经历过的state,action, +1证明他是得到reward路途中不可或缺的一环
+        self.e_table.loc[s, :] = 0
         self.e_table.loc[s, a] = 1
 
-        # print("p=%s\ns :%s a :%s e_table=%s\ns_:%s a_:%s e_table=%s"
-        #       % (p, s, a, self.e_table.loc[s, a], s_, a_, self.e_table.loc[s_, a_]))
-
+        # ***********原来的Sarsa(λ)算法************
         self.q_table += self.alpha * p * self.e_table
-        self.e_table *= self.gamma * self.lambda_
+        self.e_table *= self.gamma * self.lambda_           # 随着时间衰减 eligibility trace 的值, 离获取 reward 越远的步, 他的"不可或缺性"越小
 
-        # print("after E_Table learn----->\n", self.e_table, "\nafter Q_Table learn----->\n", self.q_table,
-        #       "\n====================================================")
+        # ***********Sarsa与Sarsa(λ)结合************
+        # if s_ is str(env.end):
+        #     self.q_table += self.alpha * p * self.e_table
+        #     self.e_table *= self.gamma * self.lambda_
+        # else:
+        #     self.q_table.loc[s, a] += self.alpha * p
 
     def choose_action(self, env, observation):
         """

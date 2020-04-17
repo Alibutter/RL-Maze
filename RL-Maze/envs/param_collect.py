@@ -268,11 +268,11 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习得分对比曲线
         """
         plt.title('Scores Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_score_his)), self.q_score_his, color='green', label='QLearn')
-        plt.plot(np.arange(len(self.s_score_his)), self.s_score_his, color='red', label='Sarsa')
-        plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='blue', label='Sarsa(λ)')
-        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN')
-        plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='yellow', label='DoubleDQN')
+        plt.plot(np.arange(len(self.q_score_his)), self.q_score_his, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_score_his)), self.s_score_his, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN', linewidth='1.2', linestyle='--')
+        plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='gold', label='DoubleDQN', linewidth='1.2')
         # plt.ylim(-700, 500)
         plt.legend()                        # 显示图例说明Label标签
         plt.ylabel('Scores', fontsize=10)
@@ -283,11 +283,11 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习步长对比曲线
         """
         plt.title('Steps Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn')
-        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa')
-        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='blue', label='Sarsa(λ)')
-        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN')
-        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='yellow', label='DoubleDQN')
+        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN', linewidth='1.2', linestyle='--')
+        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='gold', label='DoubleDQN', linewidth='1.2')
         # plt.ylim(-1, 700)
         plt.legend()                        # 显示图例说明Label标签
         plt.ylabel('Steps', fontsize=10)
@@ -298,8 +298,8 @@ class Collect:
         DQN与DoubleDQN，不同算法在相同迷宫环境中，loss对比曲线
         """
         plt.title('Loss Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN')
-        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='yellow', label='Double')
+        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linestyle='--')
+        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='Double', linestyle='-')
         plt.legend()                        # 显示图例说明Label标签
         plt.ylabel('Loss', fontsize=10)
         plt.xlabel('Training times', fontsize=10)
@@ -397,7 +397,7 @@ class Collect:
         plt.show()
 
 
-color = ['red', 'blue', 'green', 'yellow', 'purple', 'black', 'orange', 'brown', 'pink', 'gray']
+color = ['red', 'skyblue', 'green', 'gold', 'purple', 'black', 'orange', 'brown', 'pink', 'gray']
 
 
 def algorithm_analysis(title, line_his, loss=False):
@@ -419,7 +419,7 @@ def algorithm_analysis(title, line_his, loss=False):
     if len(line_his):
         i = 0
         for q in line_his:
-            plt.plot(np.arange(len(q)), q, color=color[i], label=line_label + str(i))
+            plt.plot(np.arange(len(q)), q, color=color[i], label=line_label + str(i), linewidth='1')
             i += 1
         plt.legend()                        # 显示图例说明Label标签
     plt.title(title, fontsize=10)

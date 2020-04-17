@@ -4,7 +4,7 @@ from tools.config import CellWeight
 
 
 class QTable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=1):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1(alpha越大，保留之前训练效果越少。alpha为0，Q[s, a]值不变；alpha为1时，完全抛弃了原来的值)
         self.gamma = reward_decay       # 折扣因子，未来奖励的衰减值(gamma越大，表示越重视历史的经验; gamma为0时，只关心当前利益(reward))
@@ -75,8 +75,6 @@ class QTable:
         self.check_state_exist(s_)
         # 更新Q-table表
         self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, :].max() - self.q_table.loc[s, a])
-        # print('****************  AFTER LEARN  *******************')
-        # print(self.q_table)
 
     def sarsa_learn(self, s, a, r, s_, a_):
         """

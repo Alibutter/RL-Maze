@@ -349,4 +349,4 @@ class MazeEnv:
         x_min = -CellWeight.FINAL
         x_max = CellWeight.FINAL
         score = y_min + (y_max - y_min) / (x_max - x_min) * (x - x_min)
-        return score
+        return int(score*100)/100

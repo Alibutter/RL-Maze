@@ -5,7 +5,7 @@ class Properties:
     TREASURE_NUM = 0    # 奖励单元出现个数（需要与路单元格奖励值同时为零或者同时非零）
     TREASURE_PATE = 0   # 奖励单元在全图出现概率
     STEPS = 99999       # 智能体探索一次最大移动次数
-    LINES_MAX = 10      # 保存曲线的最大记录数
+    LINES_MAX = 5      # 保存曲线的最大记录数
 
 
 # 迷宫格类型定义

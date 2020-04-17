@@ -22,12 +22,12 @@ class DoubleDQN:
         target_model = TargetModel(num_actions=self.env.n_actions)
         self.env.QT = DeepQNetwork(self.env.n_actions, self.env.n_features, eval_model, target_model,
                                    double_q=True,
-                                   learning_rate=0.01,
+                                   learning_rate=0.001,
                                    reward_decay=0.9,
                                    e_greedy=0.9,
                                    replace_target_iter=30,
                                    memory_size=1000,
-                                   batch_size=80,
+                                   batch_size=50,
                                    # e_greedy_increment=0.05,                       # 是否按照指定增长率 动态设置增长epsilon
                                    param_collect=self.collections
                                    # output_graph=True                              # 是否生成tensorflow数据流结构文件，用于再浏览器查看
@@ -39,8 +39,7 @@ class DoubleDQN:
 
     def update(self):
         button = self.env.find_button_by_name(Strings.Double_DQN)
-        step = 0                                                                    # 记录智能体移动步数
-        last_step = 0
+        step_sum = 0                                                                # 记录智能体移动步数之和
         exit_time = 0                                                               # 记录到达终点的次数
         for episode in range(1000):
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
@@ -62,38 +61,29 @@ class DoubleDQN:
                 state = np.array(self.env.back_agent).astype(float)
                 next_state = np.array(self.env.agent).astype(float)
                 self.env.QT.store_transition(state, action, reward, next_state)     # 强化学习更新Q表
-                step += 1
+                step_sum += 1
 
                 # self.env.QT.learn()
-                # if exit_time >= 2 and step >= 200 and (step % 10 == 0):
-                if step >= 200 and (step % 5 == 0):
-                    self.env.QT.learn()
+                # if exit_time >= 2 and step >= 200 and step % 10 == 0:
+                if step_sum >= 500 and step_sum % 10 == 0:
+                    self.env.QT.learn(observation_, self.env.reward_table)
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
+
+                    episode_step = self.env.step                                    # 获取结束时的步长
+                    score = self.env.score()                                        # 获取结束时的分数
+
                     if self.env.agent == self.env.end:
                         terminal = 'to ***EXIT***'
                         exit_time += 1                                              # 到达终点的次数加一
-                        score = get_score(step - last_step, CellWeight.FINAL)
                     else:
                         terminal = 'to WALL'
-                        score = get_score(step - last_step, CellWeight.WALL)
                     if self.collections:                                            # 收集数据绘制图表
-                        self.collections.add_double_param(step - last_step, score)
+                        self.collections.add_double_param(episode_step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
-                          .format(episode + 1, step - last_step, terminal, score))
-                    last_step = step
+                          .format(episode + 1, episode_step, terminal, score))
                     break
 
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
 
         print("DoubleDQN-Learning has been normally finished")
-
-
-def get_score(step, reward):
-    """
-    计算学习结束后的分数
-    :param step: 智能体移动步数
-    :param reward: 智能体学习结束时获得的奖励
-    :return: 总分数
-    """
-    return -1 * (step - 1) + reward
