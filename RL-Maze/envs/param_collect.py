@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from tools.config import Properties, CellWeight
+from tools.config import Properties
 
 lines_max = Properties.LINES_MAX
 """
@@ -29,14 +29,14 @@ lines_max = Properties.LINES_MAX
         该窗口不会显示
         
     （4）Loss曲线纵向对比：
-        [A].正常模式：（不同迷宫 相同算法 loss曲线记录）
+        [A].正常模式：（不同迷宫 相同算法）
             每当刷新迷宫时，都将保存在上一迷宫环境中DQN或DoubleDQN执
             行过后所得loss曲线。由于是同一算法在不同迷宫环境的loss曲
             线对比，所以只有两者中至少一个算法在两种及以上迷宫环境中均
             有执行，才会显示包含各个算法在不同迷宫环境的loss曲线自身对
             比图“Self Loss Compared In His_maze”窗口，否则该窗口不
             显示
-        [B].调参模式：（相同迷宫 相同算法 loss曲线记录）
+        [B].调参模式：（相同迷宫 相同算法）
             *******************    注意    ********************
               调参模式中，只显示“Self Loss Compared In Current 
               Maze For Adjusting Params”窗口。为了确保是在相同  
@@ -360,7 +360,7 @@ class Collect:
         Self Loss Compared In Current Maze For Adjusting Params窗口：
         展示相同算法 相同迷宫下的loss曲线自我对比
         """
-        print("进入方法figure_self_loss_compared时，dqn_loss曲线历史记录有 %s 条" % len(self.dqn_loss_line_his))
+        # print("进入方法figure_self_loss_compared时，dqn_loss曲线历史记录有 %s 条" % len(self.dqn_loss_line_his))
         if self.adjust_params:
             num = 0
             figure_title = "Self Loss Compared In Current Maze For Adjusting Params"

@@ -4,7 +4,7 @@ from tensorflow.keras import layers
 
 class EvalModel(tf.keras.Model):
     def __init__(self, num_actions):
-        super().__init__('mlp_q_network')
+        super().__init__('eval_network')
         self.layer1 = layers.Dense(40, activation='relu')
         self.logits = layers.Dense(num_actions, activation=None)
 
@@ -17,7 +17,7 @@ class EvalModel(tf.keras.Model):
 
 class TargetModel(tf.keras.Model):
     def __init__(self, num_actions):
-        super().__init__('mlp_q_network_1')
+        super().__init__('target_network')
         self.layer1 = layers.Dense(40, trainable=False, activation='relu')
         self.logits = layers.Dense(num_actions, trainable=False, activation=None)
 
