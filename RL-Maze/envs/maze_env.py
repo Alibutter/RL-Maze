@@ -18,6 +18,7 @@ class MazeEnv:
         self.refresh = False                                    # 刷新地图标志位
         self.map, self.begin, self.end = maze_creator(Properties.MAZE_LEN, Properties.MAZE_LEN, Properties.TREASURE_NUM,
                                                       Properties.TREASURE_PATE)    # 迷宫初始化
+        self.step = 0                                           # 记录智能体移动步长
         self.agent = copy.deepcopy(self.begin)                  # 标记智能体位置
         self.back_agent = copy.deepcopy(self.agent)             # 标记智能体移动前的位置，用于移动后恢复之前的单元
         self.weight_table = copy.deepcopy(self.map.maze)        # 迷宫地图权值表，用于保存初试迷宫地图，智能体移动过程中的单元格恢复
@@ -208,18 +209,19 @@ class MazeEnv:
         """
         绘制地图
         """
-        if self.refresh:                                                # 检查刷新标志位，是否需要刷新
+        if self.refresh:                                                    # 检查刷新标志位，是否需要刷新
             self.refresh = False
             self.QT = None
             if self.collections:
-                self.collections.scores_compared_clear()                             # 清空collections收集的旧数据
+                self.collections.scores_compared_clear()                    # 清空collections收集的旧数据
             self.map, self.begin, self.end = maze_creator(Properties.MAZE_LEN, Properties.MAZE_LEN, Properties.TREASURE_NUM, Properties.TREASURE_PATE)
-            self.agent = copy.deepcopy(self.begin)                      # 恢复智能体初始位置为迷宫起点
+            self.step = 0                                                   # 智能体步长归零
+            self.agent = copy.deepcopy(self.begin)                          # 恢复智能体初始位置为迷宫起点
             self.back_agent = copy.deepcopy(self.agent)
-            self.weight_table = copy.deepcopy(self.map.maze)            # 更新地图权值表
+            self.weight_table = copy.deepcopy(self.map.maze)                # 更新地图权值表
             self.weight_table[1][0] = CellWeight.ROAD
             self.reward_table = pd.DataFrame(columns=[], dtype=np.float64)  # 动作奖励值表
-            self._init_reward_table()                                    # 更新reward_table表
+            self._init_reward_table()                                       # 更新reward_table表
 
         self.screen.fill(Color.BLUE)                                    # 填充背景色
         self.py.draw.rect(self.screen, Color.WHITE, ((0, 0), (600, 30)))     # 绘制上方按钮矩形区域
@@ -287,6 +289,7 @@ class MazeEnv:
         """
         用于学习遇到一次terminal状态后智能体复位
         """
+        self.step = 0                                           # 智能体步长记录归零
         self.agent = copy.deepcopy(self.begin)                  # 智能体复位
         self.back_agent = copy.deepcopy(self.agent)             # 上次智能体位置复位
         self.weight_table[1][0] = CellWeight.AGENT
@@ -314,9 +317,10 @@ class MazeEnv:
         else:
             if self.agent[1] < Properties.MAZE_LEN-2 or self.agent == [self.end[0], self.end[1]-1]:
                 self.agent[1] += 1
+        self.step += 1                                                                  # 智能体移动步长加一
         cur_reward = int(self.reward_table.loc[str(self.back_agent)][str(action)])      # 执行动作后当前位置的即时奖励
         if cur_reward == CellWeight.TREASURE:
-            self._update_reward_table()                          # 吃掉一个奖励单元，导致reward表更新
+            self._update_reward_table()                                                 # 吃掉一个奖励单元，导致reward表更新
             state = copy.deepcopy(self.agent)
         elif cur_reward == CellWeight.WALL:
             state = 'terminal'
@@ -329,3 +333,20 @@ class MazeEnv:
         # print('return state-->{0} reward-->{1}'.format(state, cur_reward))
         # print('back:%s --%s--> current:%s  reward:%s' % (self.back_agent, action, self.agent, cur_reward))
         return state, cur_reward
+
+    def score(self):
+        """
+        计算学习结束后的分数
+        :return: 总分数
+        """
+        if self.agent == self.end:
+            reward = CellWeight.FINAL
+        else:
+            reward = CellWeight.WALL
+        x = -1 * (self.step - 1) + reward
+        y_min = -100
+        y_max = 100
+        x_min = -CellWeight.FINAL
+        x_max = CellWeight.FINAL
+        score = y_min + (y_max - y_min) / (x_max - x_min) * (x - x_min)
+        return score
