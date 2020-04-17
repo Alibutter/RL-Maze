@@ -26,7 +26,6 @@ class SarsaLambda:
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Sarsa(λ) has been stopped by being interrupted")
                 return
-            step = 0                                                                # 记录智能体移动步数
             action = self.env.QT.choose_action(self.env, str(self.env.agent))       # 选择智能体当前状态下的动作
             self.env.QT.e_table *= 0                                                # “不可或缺性”价值表置零
             while button.status is Status.DOWN:
@@ -46,44 +45,21 @@ class SarsaLambda:
 
                 action = action_                                                    # 替换旧的action
 
-                step += 1
-
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
 
-                    # print("===============================================\nE_Table update")
-                    # print(self.env.QT.e_table)
-                    # print("Q_Table update")
-                    # print(self.env.QT.q_table, "\n===============================================")
+                    step = self.env.step                                            # 获取结束时的步长
+                    score = self.env.score()                                        # 获取结束时的分数
 
                     if self.env.agent == self.env.end:
                         terminal = 'to ***EXIT***'
-                        score = get_score(step, CellWeight.FINAL)
                     else:
                         terminal = 'to WALL'
-                        score = get_score(step, CellWeight.WALL)
                     if self.collections:                                            # 收集数据绘制图表
                         self.collections.add_sl_param(step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
                           .format(episode + 1, step, terminal, score))
                     break
-                # elif step >= 600:
-                #     score = get_score(step, 0)
-                #     if self.collections:                                            # 收集数据绘制图表
-                #         self.collections.add_sl_param(step, score)
-                #     print('{0} time episode has been failed and <!SHUTDOWN!> with using more than {1} steps at the score {2}'
-                #           .format(episode + 1, step, score))
-                #     break
 
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
 
         print("Sarsa(λ)-Learning has been normally finished")
-
-
-def get_score(step, reward):
-    """
-    计算学习结束后的分数
-    :param step: 智能体移动步数
-    :param reward: 智能体学习结束时获得的奖励
-    :return: 总分数
-    """
-    return -1 * (step-1) + reward

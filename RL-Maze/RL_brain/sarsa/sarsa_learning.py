@@ -26,7 +26,6 @@ class Sarsa:
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Sarsa has been stopped by being interrupted")
                 return
-            step = 0                                                                # 记录智能体移动步数
             action = self.env.QT.choose_action(self.env, str(self.env.agent))       # 选择智能体当前状态下的动作
 
             while button.status is Status.DOWN:
@@ -45,15 +44,13 @@ class Sarsa:
                                         str(self.env.agent), action_)               # 强化学习更新Q表
                 action = action_                                                    # 替换旧的action
 
-                step += 1
-
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
+                    step = self.env.step                                            # 获取结束时的步长
+                    score = self.env.score()                                        # 获取结束时的分数
                     if self.env.agent == self.env.end:
                         terminal = 'to ***EXIT***'
-                        score = get_score(step, CellWeight.FINAL)
                     else:
                         terminal = 'to WALL'
-                        score = get_score(step, CellWeight.WALL)
                     if self.collections:                                            # 收集数据绘制图表
                         self.collections.add_s_param(step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
@@ -63,13 +60,3 @@ class Sarsa:
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
 
         print("Sarsa-Learning has been normally finished")
-
-
-def get_score(step, reward):
-    """
-    计算学习结束后的分数
-    :param step: 智能体移动步数
-    :param reward: 智能体学习结束时获得的奖励
-    :return: 总分数
-    """
-    return -1 * (step-1) + reward
