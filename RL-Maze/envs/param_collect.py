@@ -271,7 +271,7 @@ class Collect:
         plt.plot(np.arange(len(self.q_score_his)), self.q_score_his, color='green', label='QLearn', linewidth='1.2')
         plt.plot(np.arange(len(self.s_score_his)), self.s_score_his, color='red', label='Sarsa', linewidth='1.2')
         plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN', linewidth='1.2', linestyle='--')
+        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN', linewidth='1.2', linestyle='-')
         plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='gold', label='DoubleDQN', linewidth='1.2')
         # plt.ylim(-700, 500)
         plt.legend()                        # 显示图例说明Label标签
@@ -283,11 +283,11 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习步长对比曲线
         """
         plt.title('Steps Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1.2')
-        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN', linewidth='1.2', linestyle='--')
-        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='gold', label='DoubleDQN', linewidth='1.2')
+        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1')
+        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1')
+        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1')
+        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='gold', label='DoubleDQN', linewidth='1')
         # plt.ylim(-1, 700)
         plt.legend()                        # 显示图例说明Label标签
         plt.ylabel('Steps', fontsize=10)
@@ -298,8 +298,8 @@ class Collect:
         DQN与DoubleDQN，不同算法在相同迷宫环境中，loss对比曲线
         """
         plt.title('Loss Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linestyle='--')
-        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='Double', linestyle='-')
+        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='Double', linewidth='1', linestyle='-')
         plt.legend()                        # 显示图例说明Label标签
         plt.ylabel('Loss', fontsize=10)
         plt.xlabel('Training times', fontsize=10)
@@ -339,7 +339,7 @@ class Collect:
             plt.subplot(2, 3, 5)
             algorithm_analysis('DoubleDQN Analysis', self.double_line_his)
         else:
-            print("no same algorithm run in at least two mazes, so the window \"Same "
+            print("no same algorithm stored at least two lines in different mazes, so the window \"Same "
                   "Algorithm In His_maze\" won't show!")
 
     def figure_different_loss_compared(self):
@@ -364,12 +364,12 @@ class Collect:
         if self.adjust_params:
             num = 0
             figure_title = "Self Loss Compared In Current Maze For Adjusting Params"
-            warning = "no DQN or DoubleDQN run in at least two times, so the window \"Self " \
+            warning = "no DQN or DoubleDQN stored at least two lines, so the window \"Self " \
                       "Loss Compared In Current Maze For Adjusting Params\" for adjusting params won't show!"
         else:
             num = 1
             figure_title = "Self Loss Compared In His_maze"
-            warning = "no DQN or DoubleDQN run, so the window \"Self " \
+            warning = "no DQN or DoubleDQN stored at least two lines in different mazes, so the window \"Self " \
                       "Loss Compared In His_maze\" won't show!"
         if len(self.dqn_loss_line_his) > num or len(self.double_loss_line_his) > num:
             plt.figure(figure_title)
@@ -386,6 +386,7 @@ class Collect:
         """
         # self.store_all_lines()                              # 将当前所有学习曲线保存
         if self.adjust_params:
+            self.figure_different_scores_steps_compared()  # 不同算法的步长与得分曲线对比
             self.figure_different_loss_compared()                  # DQN与DoubleDQN在当前环境中的loss曲线对比
             self.figure_self_loss_compared()                       # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
         else:

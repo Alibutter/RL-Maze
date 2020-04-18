@@ -22,12 +22,12 @@ class DoubleDQN:
         target_model = TargetModel(num_actions=self.env.n_actions)
         self.env.QT = DeepQNetwork(self.env.n_actions, self.env.n_features, eval_model, target_model,
                                    double_q=True,
-                                   learning_rate=0.001,
+                                   learning_rate=0.01,
                                    reward_decay=0.9,
                                    e_greedy=0.9,
-                                   replace_target_iter=30,
+                                   replace_target_iter=20,
                                    memory_size=1000,
-                                   batch_size=50,
+                                   batch_size=30,
                                    # e_greedy_increment=0.05,                       # 是否按照指定增长率 动态设置增长epsilon
                                    param_collect=self.collections
                                    # output_graph=True                              # 是否生成tensorflow数据流结构文件，用于再浏览器查看
@@ -60,12 +60,12 @@ class DoubleDQN:
                 # 将Env中的状态值强制转换为float类型
                 state = np.array(self.env.back_agent).astype(float)
                 next_state = np.array(self.env.agent).astype(float)
-                self.env.QT.store_transition(state, action, reward, next_state)     # 强化学习更新Q表
+                self.env.QT.store_transition(state, action, reward, next_state)     # 添加到经验池
                 step_sum += 1
 
                 # self.env.QT.learn()
                 # if exit_time >= 2 and step >= 200 and step % 10 == 0:
-                if step_sum >= 500 and step_sum % 10 == 0:
+                if step_sum >= 200 and step_sum % 30 == 0:
                     self.env.QT.learn(observation_, self.env.reward_table)
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束

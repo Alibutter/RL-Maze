@@ -10,7 +10,7 @@ class DeepQNetwork:
                  learning_rate=0.01,
                  reward_decay=0.9,
                  e_greedy=0.9,
-                 replace_target_iter=200,
+                 replace_target_iter=30,
                  memory_size=2000,
                  batch_size=50,
                  e_greedy_increment=None,
@@ -62,6 +62,7 @@ class DeepQNetwork:
         self.eval_model.compile(
             optimizer=RMSprop(lr=self.params['learning_rate']),
             loss='mse',
+            # optimizer='rmsprop',
             # optimizer=Adam(lr=1e-5),
             # optimizer='sgd',
             # loss='categorical_crossentropy',
@@ -168,16 +169,22 @@ class DeepQNetwork:
             # max_act4next = np.argmax(q_eval_next, axis=1)
             selected_q_next = q_next[batch_index, max_act4next]     # 根据最新参数网络选择的s_状态下最大Q值动作，获得旧参数网络在s_状态执行该动作的Q值
         else:                   # 执行DQN算法
-            selected_q_next = filter_max_data(next_states, q_next, reward_table)
+            selected_q_next = filter_max_data(next_states, q_next, reward_table)        # 求maxQ'(sj',aj',w')
             # selected_q_next = np.max(q_next, axis=1)
 
-        # if observation_ is 'terminal':
-        #     q_target[batch_index, eval_act_index] = reward
-        # else:
-        q_target[batch_index, eval_act_index] = reward + self.params['reward_decay'] * selected_q_next
+        if observation_ is 'terminal':
+            # yj=Rj
+            q_target[batch_index, eval_act_index] = reward
+        else:
+            # yj=Rj+gamma*maxQ'(sj',aj',w')
+            q_target[batch_index, eval_act_index] = reward + self.params['reward_decay'] * selected_q_next
 
         # 训练eval_model网络
         self.loss = self.eval_model.train_on_batch(batch_memory.iloc[:, :self.params['n_features']], q_target)
+        # 若激活metrics=['accuracy']，则使用下面这行：
+        # [self.loss, accuracy] = self.eval_model.train_on_batch(batch_memory.iloc[:, :self.params['n_features']], q_target)
+        # 若想要在控制台输出loss和accuracy的history记录，则使用下面这行，此时图标按钮将不能使用，否则报错
+        # self.loss = self.eval_model.fit(batch_memory.iloc[:, :self.params['n_features']], q_target)
 
         # 检查是否需要用eval_model的最新参数替换target_model网络中的旧参数(w,b)
         if self.learn_step_counter % self.params['replace_target_iter'] == 0:
