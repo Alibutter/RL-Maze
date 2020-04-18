@@ -318,7 +318,7 @@ class MazeEnv:
             if self.agent[1] < Properties.MAZE_LEN-2 or self.agent == [self.end[0], self.end[1]-1]:
                 self.agent[1] += 1
         self.step += 1                                                                  # 智能体移动步长加一
-        cur_reward = int(self.reward_table.loc[str(self.back_agent)][str(action)])      # 执行动作后当前位置的即时奖励
+        cur_reward = float(self.reward_table.loc[str(self.back_agent)][str(action)])      # 执行动作后当前位置的即时奖励
         if cur_reward == CellWeight.TREASURE:
             self._update_reward_table()                                                 # 吃掉一个奖励单元，导致reward表更新
             state = copy.deepcopy(self.agent)
