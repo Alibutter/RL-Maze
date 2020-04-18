@@ -58,7 +58,7 @@ lines_max = Properties.LINES_MAX
 
 class Collect:
     def __init__(self, adjust_params=False):
-        self.adjust_params = adjust_params          # 是否为调参状态
+        self.adjust_params = adjust_params  # 是否为调参状态
         # (1)得分与步长
         # Q-learning数据
         self.q_step_his = []
@@ -90,6 +90,10 @@ class Collect:
         # (4)loss曲线历史记录
         self.dqn_loss_line_his = []
         self.double_loss_line_his = []
+
+        # (5)accuracy准确率曲线记录
+        self.dqn_acc_his = []
+        self.double_acc_his = []
 
     def add_q_param(self, step, score):
         self.q_step_his.append(step)
@@ -123,7 +127,7 @@ class Collect:
         self.dqn_step_his = []
         self.dqn_score_his = []
         if self.adjust_params and self.dqn_loss_his:
-            self.store_dqn_loss_lines()         # 此处仅用于在某个迷宫环境为DQN调参，正常状态下无效
+            self.store_dqn_loss_lines()  # 此处仅用于在某个迷宫环境为DQN调参，正常状态下无效
         self.dqn_loss_clear()
 
     def add_double_param(self, step, score):
@@ -134,19 +138,21 @@ class Collect:
         self.double_step_his = []
         self.double_score_his = []
         if self.adjust_params and self.double_loss_his:
-            self.store_double_loss_lines()      # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
+            self.store_double_loss_lines()  # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
         self.double_loss_clear()
 
-    def add_dqn_loss(self, loss):
+    def add_dqn_loss(self, loss, accuracy):
         # print("add dqn_loss=%s:" % loss)
         self.dqn_loss_his.append(loss)
+        self.dqn_acc_his.append(accuracy)
 
     def dqn_loss_clear(self):
         self.dqn_loss_his = []
 
-    def add_double_loss(self, loss):
+    def add_double_loss(self, loss, accuracy):
         # print("add double_loss=%s:" % loss)
         self.double_loss_his.append(loss)
+        self.double_acc_his.append(accuracy)
 
     def double_loss_clear(self):
         self.double_loss_his = []
@@ -195,8 +201,8 @@ class Collect:
         """
         清除刷新前迷宫环境的所有旧数据
         """
-        self.store_all_lines()              # 将当前所有学习曲线保存
-        self.all_params_his_clear()         # 清除当前保存后的所有学习曲线
+        self.store_all_lines()  # 将当前所有学习曲线保存
+        self.all_params_his_clear()  # 清除当前保存后的所有学习曲线
 
     def store_old_q_lines(self):
         """
@@ -270,11 +276,14 @@ class Collect:
         plt.title('Scores Analysis', fontsize=10)
         plt.plot(np.arange(len(self.q_score_his)), self.q_score_his, color='green', label='QLearn', linewidth='1.2')
         plt.plot(np.arange(len(self.s_score_his)), self.s_score_his, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN', linewidth='1.2', linestyle='-')
-        plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='gold', label='DoubleDQN', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='skyblue', label='Sarsa(λ)',
+                 linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN', linewidth='1.2',
+                 linestyle='-')
+        plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='#ff8c1a', label='DDQN',
+                 linewidth='1.2')
         # plt.ylim(-700, 500)
-        plt.legend()                        # 显示图例说明Label标签
+        plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Scores', fontsize=10)
         plt.xlabel('Episode times', fontsize=10)
 
@@ -283,13 +292,13 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习步长对比曲线
         """
         plt.title('Steps Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1')
-        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1')
-        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1')
-        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN', linewidth='1', linestyle='-')
-        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='gold', label='DoubleDQN', linewidth='1')
+        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN', linewidth='1.2', linestyle='-')
+        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='#ff8c1a', label='DDQN', linewidth='1.2')
         # plt.ylim(-1, 700)
-        plt.legend()                        # 显示图例说明Label标签
+        plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Steps', fontsize=10)
         plt.xlabel('Episode times', fontsize=10)
 
@@ -297,12 +306,29 @@ class Collect:
         """
         DQN与DoubleDQN，不同算法在相同迷宫环境中，loss对比曲线
         """
+        fig = plt.figure("Different Loss Compared In Current Maze")
         plt.title('Loss Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1', linestyle='-')
-        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='Double', linewidth='1', linestyle='-')
-        plt.legend()                        # 显示图例说明Label标签
-        plt.ylabel('Loss', fontsize=10)
-        plt.xlabel('Training times', fontsize=10)
+        ax = fig.add_subplot(111)
+        ax2 = ax.twinx()
+        ax.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1.5', linestyle='-')
+        ax2.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#e6e6e6', label='DQN_acc', linewidth='1', linestyle='-')
+        ax.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='#ff8c1a', label='DDQN', linewidth='1.5', linestyle='-')
+        ax2.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle='-')
+        fig.legend(loc=1, bbox_to_anchor=(1, 1), bbox_transform=ax.transAxes)
+        ax.set_xlabel('Training times', fontsize=10)
+        ax.set_ylabel('Loss', fontsize=10)
+        ax2.set_ylabel('Accuracy', fontsize=10)
+
+        # 只显示loss，隐藏accuracy曲线
+        # plt.figure("Different Loss Compared In Current Maze")
+        # plt.title('Loss Analysis', fontsize=10)
+        # plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1', linestyle='-')
+        # plt.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#cccccc', label='DQN_acc', linewidth='1.5', linestyle='-')
+        # plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='DDQN', linewidth='1', linestyle='-')
+        # plt.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffcc99', label='DDQN_acc', linewidth='2', linestyle='-')
+        # plt.legend()  # 显示图例说明Label标签
+        # plt.ylabel('Loss', fontsize=10)
+        # plt.xlabel('Training times', fontsize=10)
 
     def figure_different_scores_steps_compared(self):
         """
@@ -313,9 +339,9 @@ class Collect:
                 or len(self.double_step_his) > 0:
             plt.figure("Different Algorithm In Current Maze")
             plt.subplot(1, 2, 1)
-            self.steps_compared()           # 不同算法 步长对比
+            self.steps_compared()  # 不同算法 步长对比
             plt.subplot(1, 2, 2)
-            self.scores_compared()          # 不同算法 得分对比
+            self.scores_compared()  # 不同算法 得分对比
         else:
             print("no algorithm run in current maze, so the window \"Different Algorithm "
                   "In Current Maze\" won't show!")
@@ -347,7 +373,7 @@ class Collect:
         Different Loss Compared In Current Maze窗口，展示不同算法在同一环境中的loss曲线对比
         """
         if len(self.dqn_loss_his) or len(self.double_loss_his):
-            plt.figure("Different Loss Compared In Current Maze")
+
             self.loss_compared()
         else:
             print("no DQN or DoubleDQN run in current maze, so the window \"Different "
@@ -387,13 +413,13 @@ class Collect:
         # self.store_all_lines()                              # 将当前所有学习曲线保存
         if self.adjust_params:
             self.figure_different_scores_steps_compared()  # 不同算法的步长与得分曲线对比
-            self.figure_different_loss_compared()                  # DQN与DoubleDQN在当前环境中的loss曲线对比
-            self.figure_self_loss_compared()                       # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
+            self.figure_different_loss_compared()  # DQN与DoubleDQN在当前环境中的loss曲线对比
+            self.figure_self_loss_compared()  # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
         else:
-            self.figure_different_scores_steps_compared()          # 不同算法的步长与得分曲线对比
-            self.figure_self_scores_compared()                     # 同一算法在不同迷宫环境的得分曲线对比
-            self.figure_different_loss_compared()                  # DQN与DoubleDQN在当前环境中的loss曲线对比
-            self.figure_self_loss_compared()                       # DQN与DoubleDQN在不同环境中的loss曲线自我对比
+            self.figure_different_scores_steps_compared()  # 不同算法的步长与得分曲线对比
+            self.figure_self_scores_compared()  # 同一算法在不同迷宫环境的得分曲线对比
+            self.figure_different_loss_compared()  # DQN与DoubleDQN在当前环境中的loss曲线对比
+            self.figure_self_loss_compared()  # DQN与DoubleDQN在不同环境中的loss曲线自我对比
         # self.all_params_his_clear()                         # 将当前所有学习曲线
         plt.show()
 
@@ -422,7 +448,7 @@ def algorithm_analysis(title, line_his, loss=False):
         for q in line_his:
             plt.plot(np.arange(len(q)), q, color=color[i], label=line_label + str(i), linewidth='1')
             i += 1
-        plt.legend()                        # 显示图例说明Label标签
+        plt.legend()  # 显示图例说明Label标签
     plt.title(title, fontsize=10)
     plt.ylabel(y_label, fontsize=10)
     plt.xlabel(x_label, fontsize=10)
