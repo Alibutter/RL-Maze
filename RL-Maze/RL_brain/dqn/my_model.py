@@ -6,7 +6,6 @@ class EvalModel(tf.keras.Model):
     def __init__(self, num_actions):
         super().__init__('eval_network')
         self.layer1 = layers.Dense(40, activation='relu')
-        layers.Dropout(0.2)
         self.logits = layers.Dense(num_actions, activation=None)
 
     def call(self, inputs):
@@ -20,7 +19,6 @@ class TargetModel(tf.keras.Model):
     def __init__(self, num_actions):
         super().__init__('target_network')
         self.layer1 = layers.Dense(40, trainable=False, activation='relu')
-        layers.Dropout(0.2)
         self.logits = layers.Dense(num_actions, trainable=False, activation=None)
 
     def call(self, inputs):
