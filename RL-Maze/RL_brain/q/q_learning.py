@@ -1,6 +1,5 @@
-from tools.config import Strings, CellWeight, Status
+from tools.config import Strings, Status
 from RL_brain.q.Q_table import QTable
-import numpy as np
 
 
 class QL:
@@ -18,7 +17,7 @@ class QL:
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.q_params_clear()
         self.env.QT = QTable(actions=list(range(self.env.n_actions)))
-        print("----------Reinforcement Learning with Q-Learning start:----------")
+        print("\n----------Reinforcement Learning with Q-Learning start:----------")
         self.update()
 
     def update(self):
@@ -35,7 +34,9 @@ class QL:
                     # print('MazeEnv.QT is None after refresh or its type is not QTable, Q-Learning is stopped')
                     return
 
-                action = self.env.QT.choose_action(self.env, str(self.env.agent))   # 通过强化学习算法选择智能体当前状态下的动作
+                # 通过强化学习算法选择智能体当前状态下的动作
+                action = self.env.QT.choose_action(self.env.reward_table, str(self.env.agent))   # 加动作集限制的动作决策
+                # action = self.env.QT.choose_action_unlimited(str(self.env.agent))   # 不加动作集限制的动作决策
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
 

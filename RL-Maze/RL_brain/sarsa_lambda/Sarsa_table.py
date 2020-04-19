@@ -13,7 +13,7 @@ class STable:
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)     # Q_table表初始化，记录学习的Q值
         self.e_table = self.q_table.copy()                                      # 资格迹矩阵trace_table表初始化，记录路途的“不可或缺性”大小
 
-    def sarsa_lambda_learn(self, env, s, a, r, s_, a_):
+    def sarsa_lambda_learn(self, s, a, r, s_, a_):
         """
         Sarsa(λ)算法
         :param env:
@@ -33,10 +33,25 @@ class STable:
         self.q_table += self.alpha * p * self.e_table
         self.e_table *= self.gamma * self.lambda_           # 随着时间衰减 eligibility trace 的值, 离获取 reward 越远的步, 他的"不可或缺性"越小
 
-    def choose_action(self, env, observation):
+    def choose_action_unlimited(self, observation):
         """
-        在当前状态下按照策略选择动作
-        :param env: 智能体所在环境
+        在当前状态下按照默认策略选择动作
+        :param observation: 当前状态
+        :return:
+        """
+        # observation 当前所在状态，位置
+        self.check_state_exist(observation)
+        if np.random.uniform() < self.epsilon:
+            state_action = self.q_table.loc[observation, :]
+            action = np.random.choice(state_action[state_action == np.max(state_action)].index)
+        else:
+            action = np.random.choice(self.actions)
+        return action
+
+    def choose_action(self, reward_table, observation):
+        """
+        在当前状态下按照边界动作约束选择动作（提高效率）
+        :param reward_table: 智能体所在环境
         :param observation: 当前状态
         :return:动作action
         """
@@ -46,15 +61,15 @@ class STable:
         # 在当前状态下选取动作
         if np.random.uniform() < self.epsilon:
             # 根据已学习的Q_table表选择最优action
-            action = self.filter_data(observation, env.reward_table, False)
+            action = self.filter_data(observation, reward_table, False)
         else:
             # 随机选取动作
-            action = self.filter_data(observation, env.reward_table, True)
+            action = self.filter_data(observation, reward_table, True)
         return action
 
     def filter_data(self, state, reward_table, random):
         """
-        根据reward表过滤Q_table表，只能在当前状态下可选择的动作集合中选择动作
+        边界动作约束，根据reward表过滤Q_table表，只能在当前状态下可选择的动作集合中选择动作
         :param state: 当前状态
         :param reward_table: 奖励值表
         :param random: 是否随机选择标志位，True表示随机，False表示从集合中选择最大Q值动作

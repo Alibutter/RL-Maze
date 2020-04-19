@@ -1,4 +1,4 @@
-from tools.config import Strings, CellWeight, Status
+from tools.config import Strings, Status
 import numpy as np
 from RL_brain.dqn.dq_network import DeepQNetwork
 from RL_brain.dqn.my_model import EvalModel, TargetModel
@@ -6,6 +6,11 @@ from RL_brain.dqn.my_model import EvalModel, TargetModel
 
 class DoubleDQN:
     def __init__(self, env, collections=None):
+        """
+        DoubleDQN算法初始化
+        :param env: 所在环境
+        :param collections: 是否收集数据
+        """
         self.env = env
         self.collections = collections
 
@@ -26,13 +31,12 @@ class DoubleDQN:
                                    reward_decay=0.9,
                                    e_greedy=0.9,
                                    replace_target_iter=20,
-                                   memory_size=1000,
-                                   batch_size=30,
+                                   memory_size=2000,
+                                   batch_size=20,
                                    # e_greedy_increment=0.05,                       # 是否按照指定增长率 动态设置增长epsilon
                                    param_collect=self.collections
-                                   # output_graph=True                              # 是否生成tensorflow数据流结构文件，用于再浏览器查看
                                    )
-        print("----------Reinforcement Learning with DoubleDQN-Learning start:----------")
+        print("\n----------Reinforcement Learning with DoubleDQN-Learning start:----------")
         self.update()
         if not self.env.QT or not isinstance(self.env.QT, DeepQNetwork):            # 检查是否因为切换按钮导致Env中的QT对象发生变换
             return

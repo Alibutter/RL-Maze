@@ -1,4 +1,4 @@
-from tools.config import Strings, CellWeight, Status
+from tools.config import Strings, Status
 from RL_brain.q.Q_table import QTable
 
 
@@ -17,7 +17,7 @@ class Sarsa:
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.s_params_clear()
         self.env.QT = QTable(actions=list(range(self.env.n_actions)))
-        print("----------Reinforcement Learning with Srasa start:----------")
+        print("\n----------Reinforcement Learning with Srasa start:----------")
         self.update()
 
     def update(self):
@@ -26,7 +26,7 @@ class Sarsa:
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Sarsa has been stopped by being interrupted")
                 return
-            action = self.env.QT.choose_action(self.env, str(self.env.agent))       # 选择智能体当前状态下的动作
+            action = self.env.QT.choose_action(self.env.reward_table, str(self.env.agent))       # 选择智能体当前状态下的动作
 
             while button.status is Status.DOWN:
 
@@ -38,7 +38,9 @@ class Sarsa:
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
 
-                action_ = self.env.QT.choose_action(self.env, str(self.env.agent))  # 在新状态下选择新的动作
+                # 在新状态下选择新的动作
+                action_ = self.env.QT.choose_action(self.env.reward_table, str(self.env.agent))  # 加动作集限制的动作决策
+                # action = self.env.QT.choose_action_unlimited(str(self.env.agent))   # 不加动作集限制的动作决策
 
                 self.env.QT.sarsa_learn(str(self.env.back_agent), action, reward,
                                         str(self.env.agent), action_)               # 强化学习更新Q表

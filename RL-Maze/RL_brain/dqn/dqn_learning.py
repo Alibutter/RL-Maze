@@ -1,4 +1,4 @@
-from tools.config import Strings, CellWeight, Status
+from tools.config import Strings, Status
 import numpy as np
 from RL_brain.dqn.dq_network import DeepQNetwork
 from RL_brain.dqn.my_model import EvalModel, TargetModel
@@ -6,6 +6,11 @@ from RL_brain.dqn.my_model import EvalModel, TargetModel
 
 class DQN:
     def __init__(self, env, collections=None):
+        """
+        DQN初始化
+        :param env: 所在环境
+        :param collections: 是否收集数据
+        """
         self.env = env
         self.collections = collections
 
@@ -22,17 +27,16 @@ class DQN:
         target_model = TargetModel(num_actions=self.env.n_actions)
         self.env.QT = DeepQNetwork(self.env.n_actions, self.env.n_features, eval_model, target_model,
                                    double_q=False,
-                                   learning_rate=0.01,
+                                   learning_rate=0.001,
                                    reward_decay=0.9,
                                    e_greedy=0.9,
                                    replace_target_iter=20,
-                                   memory_size=1000,
-                                   batch_size=30,
+                                   memory_size=2000,
+                                   batch_size=20,
                                    # e_greedy_increment=0.01,                       # 是否按照指定增长率 动态设置增长epsilon
                                    param_collect=self.collections
-                                   # output_graph=True                              # 是否生成tensorflow数据流结构文件，用于再浏览器查看
                                    )
-        print("----------Reinforcement Learning with DQN-Learning start:----------")
+        print("\n----------Reinforcement Learning with DQN-Learning start:----------")
         self.update()
         if not self.env.QT or not isinstance(self.env.QT, DeepQNetwork):            # 检查是否因为切换按钮导致Env中的QT对象发生变换
             return
@@ -53,8 +57,9 @@ class DQN:
                     # print('MazeEnv.QT is None after refresh or its type is not DeepQNetwork, DQN-Learning is stopped')
                     return
 
-                action = self.env.QT.choose_action(self.env.reward_table, self.env.agent)   # 通过强化学习算法选择智能体当前状态下的动作
+                # action = self.env.QT.choose_action(self.env.reward_table, self.env.agent)   # 通过强化学习算法选择智能体当前状态下的动作
 
+                action = self.env.QT.choose_action_unlimited(np.array(self.env.agent))
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
 
                 # 将Env中的状态值强制转换为float类型
