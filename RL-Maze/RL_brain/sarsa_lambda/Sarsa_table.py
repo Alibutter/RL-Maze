@@ -11,7 +11,7 @@ class STable:
         self.epsilon = e_greedy         # 选择最优值的概率
         self.lambda_ = trace_decay      # 路途的“不可或缺性”大小随时间衰减的程度
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)     # Q_table表初始化，记录学习的Q值
-        self.e_table = self.q_table.copy()                                      # trace_table表初始化，记录路途的“不可或缺性”大小
+        self.e_table = self.q_table.copy()                                      # 资格迹矩阵trace_table表初始化，记录路途的“不可或缺性”大小
 
     def sarsa_lambda_learn(self, env, s, a, r, s_, a_):
         """
@@ -24,21 +24,14 @@ class STable:
         :param a_: 新状态下采取的新动作
         """
         self.check_state_exist(s_)
-        p = r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a]
+        p = r + self.q_table.loc[s_, a_] - self.gamma * self.q_table.loc[s, a]
+        # p = r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a]
         # self.e_table.loc[s, a] += 1                     # 对于经历过的state,action, +1证明他是得到reward路途中不可或缺的一环
         self.e_table.loc[s, :] = 0
         self.e_table.loc[s, a] = 1
 
-        # ***********原来的Sarsa(λ)算法************
         self.q_table += self.alpha * p * self.e_table
         self.e_table *= self.gamma * self.lambda_           # 随着时间衰减 eligibility trace 的值, 离获取 reward 越远的步, 他的"不可或缺性"越小
-
-        # ***********Sarsa与Sarsa(λ)结合************
-        # if s_ is str(env.end):
-        #     self.q_table += self.alpha * p * self.e_table
-        #     self.e_table *= self.gamma * self.lambda_
-        # else:
-        #     self.q_table.loc[s, a] += self.alpha * p
 
     def choose_action(self, env, observation):
         """
