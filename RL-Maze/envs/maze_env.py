@@ -306,10 +306,10 @@ class MazeEnv:
         """
         self.back_agent = copy.deepcopy(self.agent)             # 走下一步之前保存原来位置
         if action == Direction.UP:
-            if self.agent[0] > 1:
+            if self.agent[0] > 1 and self.agent != self.end:
                 self.agent[0] -= 1
         elif action == Direction.DOWN:
-            if self.agent[0] < Properties.MAZE_LEN-2:
+            if self.agent[0] < Properties.MAZE_LEN-2 and self.agent != self.begin:
                 self.agent[0] += 1
         elif action == Direction.LEFT:
             if self.agent[1] > 1 or self.agent == [self.begin[0], self.begin[1]+1]:
