@@ -16,7 +16,7 @@ class QL:
         self.env.QT = None                                                          # 将Env中的QT对象置空
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.q_params_clear()
-        self.env.QT = QTable(actions=list(range(self.env.n_actions)))
+        self.env.QT = QTable(actions=list(range(self.env.n_actions)), e_greedy_increment=0.001)
         print("\n----------Reinforcement Learning with Q-Learning start:----------")
         self.update()
 
@@ -40,8 +40,7 @@ class QL:
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
 
-                self.env.QT.q_learn(str(self.env.back_agent), action, reward,
-                                    str(observation_))                              # 强化学习更新Q表
+                self.env.QT.q_learn(str(self.env.back_agent), action, reward, str(observation_))    # 强化学习更新Q表
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
                     step = self.env.step                                            # 获取结束时的步长

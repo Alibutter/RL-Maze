@@ -4,12 +4,15 @@ from tools.config import CellWeight
 
 
 class QTable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=1):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=1, e_greedy_increment=None):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1(alpha越大，保留之前训练效果越少。alpha为0，Q[s, a]值不变；alpha为1时，完全抛弃了原来的值)
         self.gamma = reward_decay       # 折扣因子，未来奖励的衰减值(gamma越大，表示越重视历史的经验; gamma为0时，只关心当前利益(reward))
-        self.epsilon = e_greedy         # 选择最优值的概率
-        self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)     # Q_table表初始化，记录学习的Q值
+        self.learn_time = 0             # 记录学习次数
+        self.e_greedy = e_greedy        # 贪婪因子上限值
+        self.epsilon_increment = e_greedy_increment     # 贪婪因子的动态增长值
+        self.epsilon = 0.9 if self.epsilon_increment is not None else self.e_greedy     # 贪婪因子，选择最优值的概率
+        self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)             # Q_table表初始化，记录学习的Q值
 
     def filter_data(self, state, reward_table, random):
         """
@@ -90,6 +93,9 @@ class QTable:
         self.check_state_exist(s_)
         # 更新Q-table表
         self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, :].max() - self.q_table.loc[s, a])
+        if self.epsilon_increment:
+            self.learn_time += 1
+            self.epsilon = self.epsilon + self.epsilon_increment * self.learn_time if self.epsilon < self.e_greedy else self.e_greedy
 
     def sarsa_learn(self, s, a, r, s_, a_):
         """
@@ -103,3 +109,6 @@ class QTable:
         self.check_state_exist(s_)
         # 更新Q-table表
         self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a])
+        if self.epsilon_increment:
+            self.learn_time += 1
+            self.epsilon = self.epsilon + self.epsilon_increment * self.learn_time if self.epsilon < self.e_greedy else self.e_greedy

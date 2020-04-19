@@ -4,11 +4,14 @@ from tools.config import CellWeight
 
 
 class STable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9, trace_decay=0.9):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9, trace_decay=0.9, e_greedy_increment=None):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1
-        self.gamma = reward_decay       # 贪婪因子，未来奖励的衰减值
-        self.epsilon = e_greedy         # 选择最优值的概率
+        self.gamma = reward_decay       # 折扣因子，未来奖励的衰减值
+        self.learn_time = 0             # 记录学习次数
+        self.e_greedy = e_greedy        # 贪婪因子上限值
+        self.epsilon_increment = e_greedy_increment     # 贪婪因子的动态增长值
+        self.epsilon = 0.9 if self.epsilon_increment is not None else self.e_greedy  # 贪婪因子，选择最优值的概率
         self.lambda_ = trace_decay      # 路途的“不可或缺性”大小随时间衰减的程度
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)     # Q_table表初始化，记录学习的Q值
         self.e_table = self.q_table.copy()                                      # 资格迹矩阵trace_table表初始化，记录路途的“不可或缺性”大小
@@ -16,7 +19,6 @@ class STable:
     def sarsa_lambda_learn(self, s, a, r, s_, a_):
         """
         Sarsa(λ)算法
-        :param env:
         :param s: 当前状态
         :param a: 当前状态下采取的动作
         :param r: 动作后的即时奖励
@@ -32,6 +34,10 @@ class STable:
 
         self.q_table += self.alpha * p * self.e_table
         self.e_table *= self.gamma * self.lambda_           # 随着时间衰减 eligibility trace 的值, 离获取 reward 越远的步, 他的"不可或缺性"越小
+
+        if self.epsilon_increment:
+            self.learn_time += 1
+            self.epsilon = self.epsilon + self.epsilon_increment * self.learn_time if self.epsilon < self.e_greedy else self.e_greedy
 
     def choose_action_unlimited(self, observation):
         """
