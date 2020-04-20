@@ -16,7 +16,7 @@ class SarsaLambda:
         self.env.QT = None                                                          # 将Env中的QT对象置空
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.sl_params_clear()
-        self.env.QT = STable(actions=list(range(self.env.n_actions)), e_greedy_increment=0.001)
+        self.env.QT = STable(actions=list(range(self.env.n_actions)), e_greedy_increment=0.0005)
         print("\n----------Reinforcement Learning with Sarsa(λ) start:----------")
         self.update()
 

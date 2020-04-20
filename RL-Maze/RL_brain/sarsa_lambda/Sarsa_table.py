@@ -4,7 +4,7 @@ from tools.config import CellWeight
 
 
 class STable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9, trace_decay=0.9, e_greedy_increment=None):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.98, trace_decay=0.9, e_greedy_increment=None):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1
         self.gamma = reward_decay       # 折扣因子，未来奖励的衰减值
