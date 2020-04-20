@@ -11,13 +11,13 @@ lines_max = Properties.LINES_MAX
     （1）算法效果横向对比：（相同迷宫 不同算法）
         在当前迷宫中，每个算法都只保存最后一次执行所得的得分和步长
         曲线，并显示包含所有算法在同一迷宫环境执行效果的对比图“Dif
-        ferent Algorithm In Current Maze”窗口，即使当期迷宫中只执行
-        了一种算法，该窗口也会显示，当前迷宫内未执行算法则不显示
+        ferent Algorithm In Current Maze”窗口，即使当期迷宫中只
+        执行了一种算法，该窗口也会显示，当前迷宫内未执行算法则不显示
     （2）Loss曲线横向对比：（同一迷宫 不同算法）
         在同一个迷宫中，只保存最后一次执行执行DQN和DoubleDQN所得
-        loss曲线，显示两者在同一环境中loss曲线对比图“Different 
-        Loss Compared In Current Maze”窗口，即使只执行了两者其
-        一，该窗口也会显示
+        loss曲线，显示两者在同一环境中loss曲线(和准确率accuracy
+        曲线)对比图“Different Loss Compared In Current Maze”
+        窗口，即使只执行了两者其一，该窗口也会显示
         
     2.截至当前迷宫、各个算法最新执行结果之前的历史数据（不包括最新执行的数据）的曲线对比图
     （3）算法效果纵向对比：（不同迷宫 相同算法）
@@ -278,7 +278,7 @@ class Collect:
         plt.plot(np.arange(len(self.s_score_his)), self.s_score_his, color='red', label='Sarsa', linewidth='1.2')
         plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='skyblue', label='Sarsa(λ)',
                  linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='black', label='DQN', linewidth='1.2',
+        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='#cb33ff', label='DQN', linewidth='1.2',
                  linestyle='-')
         plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='#ff8c1a', label='DDQN',
                  linewidth='1.2')
@@ -295,8 +295,8 @@ class Collect:
         plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1.2')
         plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1.2')
         plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='black', label='DQN', linewidth='1.2', linestyle='-')
-        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='#ff8c1a', label='DDQN', linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='#ff9933', label='DDQN', linewidth='1.2')
         # plt.ylim(-1, 700)
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Steps', fontsize=10)
@@ -310,9 +310,9 @@ class Collect:
         plt.title('Loss Analysis', fontsize=10)
         ax = fig.add_subplot(111)
         ax2 = ax.twinx()
-        ax.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1.5', linestyle='-')
-        ax2.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#e6e6e6', label='DQN_acc', linewidth='1', linestyle='-')
-        ax.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='#ff8c1a', label='DDQN', linewidth='1.5', linestyle='-')
+        ax.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+        ax2.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle='-')
+        ax.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
         ax2.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle='-')
         fig.legend(loc=1, bbox_to_anchor=(1, 1), bbox_transform=ax.transAxes)
         ax.set_xlabel('Training times', fontsize=10)
