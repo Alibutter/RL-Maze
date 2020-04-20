@@ -5,7 +5,7 @@ from tools.config import Properties
 lines_max = Properties.LINES_MAX
 """
     数据采集与统计分析类Collect
-    图表绘制的规则说明 [ loss曲线图仅对于DQN与DoubleDQN算法 ]：
+    图表绘制的规则说明 [ loss，accuracy，f1_score曲线图仅对于DQN与DoubleDQN算法 ]：
     
     1.当前迷宫，各个算法最新执行数据的对比图
     （1）算法效果横向对比：（相同迷宫 不同算法）
@@ -13,11 +13,11 @@ lines_max = Properties.LINES_MAX
         曲线，并显示包含所有算法在同一迷宫环境执行效果的对比图“Dif
         ferent Algorithm In Current Maze”窗口，即使当期迷宫中只
         执行了一种算法，该窗口也会显示，当前迷宫内未执行算法则不显示
-    （2）Loss曲线横向对比：（同一迷宫 不同算法）
+    （2）Loss，accuracy，f1_score曲线横向对比：（同一迷宫 不同算法）
         在同一个迷宫中，只保存最后一次执行执行DQN和DoubleDQN所得
-        loss曲线，显示两者在同一环境中loss曲线(和准确率accuracy
-        曲线)对比图“Different Loss Compared In Current Maze”
-        窗口，即使只执行了两者其一，该窗口也会显示
+        loss曲线，显示两者在同一环境中loss曲线(和准确率accuracy,
+        f1_score曲线)对比图“Different Metrics Compared In Current 
+        Maze”窗口，即使只执行了两者其一，该窗口也会显示
         
     2.截至当前迷宫、各个算法最新执行结果之前的历史数据（不包括最新执行的数据）的曲线对比图
     （3）算法效果纵向对比：（不同迷宫 相同算法）
@@ -95,6 +95,10 @@ class Collect:
         self.dqn_acc_his = []
         self.double_acc_his = []
 
+        # (6)f1_score曲线记录
+        self.dqn_f1 = []
+        self.double_f1 = []
+
     def add_q_param(self, step, score):
         self.q_step_his.append(step)
         self.q_score_his.append(score)
@@ -141,18 +145,20 @@ class Collect:
             self.store_double_loss_lines()  # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
         self.double_loss_clear()
 
-    def add_dqn_loss(self, loss, accuracy):
+    def add_dqn_loss(self, loss, accuracy, f1):
         # print("add dqn_loss=%s:" % loss)
         self.dqn_loss_his.append(loss)
         self.dqn_acc_his.append(accuracy)
+        self.dqn_f1.append(f1)
 
     def dqn_loss_clear(self):
         self.dqn_loss_his = []
 
-    def add_double_loss(self, loss, accuracy):
+    def add_double_loss(self, loss, accuracy, f1):
         # print("add double_loss=%s:" % loss)
         self.double_loss_his.append(loss)
         self.double_acc_his.append(accuracy)
+        self.double_f1.append(f1)
 
     def double_loss_clear(self):
         self.double_loss_his = []
@@ -302,12 +308,60 @@ class Collect:
         plt.ylabel('Steps', fontsize=10)
         plt.xlabel('Episode times', fontsize=10)
 
-    def loss_compared(self):
+    def loss_acc_f1_compared(self):
+        from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
         """
-        DQN与DoubleDQN，不同算法在相同迷宫环境中，loss对比曲线
+        DQN与DoubleDQN，不同算法在相同迷宫环境中，loss,accuracy,f1对比曲线
         """
-        fig = plt.figure("Different Loss Compared In Current Maze")
-        plt.title('Loss Analysis', fontsize=10)
+        fig = plt.figure("Different Metrics Compared In Current Maze")
+        ax_loss = HostAxes(fig, [0.1, 0.1, 0.7, 0.8])  # [left, bottom, weight, height]
+        ax_acc = ParasiteAxes(ax_loss, sharex=ax_loss)
+        ax_f1 = ParasiteAxes(ax_loss, sharex=ax_loss)
+        # append axes
+        ax_loss.parasites.append(ax_acc)
+        ax_loss.parasites.append(ax_f1)
+        # invisible right axis of ax_loss
+        ax_loss.axis['right'].set_visible(False)
+        ax_loss.axis['top'].set_visible(False)
+        ax_acc.axis['right'].set_visible(True)
+        ax_acc.axis['right'].major_ticklabels.set_visible(True)
+        ax_acc.axis['right'].label.set_visible(True)
+        # set label for axis
+        ax_loss.set_ylabel('Loss', fontsize=10)
+        ax_loss.set_xlabel('Training times', fontsize=10)
+        ax_acc.set_ylabel('Accuracy', fontsize=10)
+        ax_f1.set_ylabel('F1_score', fontsize=10)
+        load_axisline = ax_f1.get_grid_helper().new_fixed_axis
+        ax_f1.axis['right2'] = load_axisline(loc='right', axes=ax_f1, offset=(40, 0))
+        fig.add_axes(ax_loss)
+
+        ax_loss.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+        ax_acc.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle='-')
+        ax_f1.plot(np.arange(len(self.dqn_f1)), self.dqn_f1, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='*')
+        ax_loss.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
+        ax_acc.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle='-')
+        ax_f1.plot(np.arange(len(self.double_f1)), self.double_f1, color='#ffe5cc', label='DDQN_F1', linewidth='1', linestyle=':', marker='o')
+        ax_loss.legend()
+        # 轴名称，刻度值的颜色
+        # ax_cof.axis['left'].label.set_color(ax_cof.get_color())
+        ax_acc.axis['right'].label.set_color('red')
+        ax_f1.axis['right2'].label.set_color('green')
+
+        ax_acc.axis['right'].major_ticks.set_color('red')
+        ax_f1.axis['right2'].major_ticks.set_color('green')
+
+        ax_acc.axis['right'].major_ticklabels.set_color('red')
+        ax_f1.axis['right2'].major_ticklabels.set_color('green')
+
+        ax_acc.axis['right'].line.set_color('red')
+        ax_f1.axis['right2'].line.set_color('green')
+
+    def loss_acc_compared(self):
+        """
+        DQN与DoubleDQN，不同算法在相同迷宫环境中，loss,accuracy曲线对比曲线
+        """
+        fig = plt.figure("Different Metrics Compared In Current Maze")
+        plt.title('Loss And Accuracy Analysis', fontsize=10)
         ax = fig.add_subplot(111)
         ax2 = ax.twinx()
         ax.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
@@ -319,16 +373,19 @@ class Collect:
         ax.set_ylabel('Loss', fontsize=10)
         ax2.set_ylabel('Accuracy', fontsize=10)
 
-        # 只显示loss，隐藏accuracy曲线
-        # plt.figure("Different Loss Compared In Current Maze")
-        # plt.title('Loss Analysis', fontsize=10)
-        # plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1', linestyle='-')
-        # plt.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#cccccc', label='DQN_acc', linewidth='1.5', linestyle='-')
-        # plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='DDQN', linewidth='1', linestyle='-')
-        # plt.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffcc99', label='DDQN_acc', linewidth='2', linestyle='-')
-        # plt.legend()  # 显示图例说明Label标签
-        # plt.ylabel('Loss', fontsize=10)
-        # plt.xlabel('Training times', fontsize=10)
+    def loss_compared(self):
+        """
+        DQN与DoubleDQN，不同算法在相同迷宫环境中，loss对比曲线
+        """
+        plt.figure("Different Loss Compared In Current Maze")
+        plt.title('Loss Analysis', fontsize=10)
+        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#cccccc', label='DQN_acc', linewidth='1.5', linestyle='-')
+        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='DDQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffcc99', label='DDQN_acc', linewidth='2', linestyle='-')
+        plt.legend()  # 显示图例说明Label标签
+        plt.ylabel('Loss', fontsize=10)
+        plt.xlabel('Training times', fontsize=10)
 
     def figure_different_scores_steps_compared(self):
         """
@@ -373,11 +430,12 @@ class Collect:
         Different Loss Compared In Current Maze窗口，展示不同算法在同一环境中的loss曲线对比
         """
         if len(self.dqn_loss_his) or len(self.double_loss_his):
-
-            self.loss_compared()
+            # self.loss_compared()            # 只显示loss曲线
+            # self.loss_acc_compared()        # 只显示loss，accuracy曲线
+            self.loss_acc_f1_compared()     # 显示loss，accuracy，f1_score曲线
         else:
             print("no DQN or DoubleDQN run in current maze, so the window \"Different "
-                  "Loss Compared In Current Maze\" won't show!")
+                  "Metrics Compared In Current Maze\" won't show!")
 
     def figure_self_loss_compared(self):
         """
