@@ -5,7 +5,7 @@ from tools.config import Properties
 lines_max = Properties.LINES_MAX
 """
     数据采集与统计分析类Collect
-    图表绘制的规则说明 [ loss，accuracy，f1_score曲线图仅对于DQN与DoubleDQN算法 ]：
+    图表绘制的规则说明 [ loss，accuracy曲线图仅对于DQN与DoubleDQN算法 ]：
     
     1.当前迷宫，各个算法最新执行数据的对比图
     （1）算法效果横向对比：（相同迷宫 不同算法）
@@ -13,11 +13,11 @@ lines_max = Properties.LINES_MAX
         曲线，并显示包含所有算法在同一迷宫环境执行效果的对比图“Dif
         ferent Algorithm In Current Maze”窗口，即使当期迷宫中只
         执行了一种算法，该窗口也会显示，当前迷宫内未执行算法则不显示
-    （2）Loss，accuracy，f1_score曲线横向对比：（同一迷宫 不同算法）
+    （2）Loss，accuracy曲线横向对比：（同一迷宫 不同算法）
         在同一个迷宫中，只保存最后一次执行执行DQN和DoubleDQN所得
-        loss曲线，显示两者在同一环境中loss曲线(和准确率accuracy,
-        f1_score曲线)对比图“Different Metrics Compared In Current 
-        Maze”窗口，即使只执行了两者其一，该窗口也会显示
+        loss曲线，显示两者在同一环境中loss曲线(和准确率accuracy
+        曲线)对比图“Different Metrics Compared In Current Maze”
+        窗口，即使只执行了两者其一，该窗口也会显示
         
     2.截至当前迷宫、各个算法最新执行结果之前的历史数据（不包括最新执行的数据）的曲线对比图
     （3）算法效果纵向对比：（不同迷宫 相同算法）
