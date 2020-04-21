@@ -145,23 +145,25 @@ class Collect:
             self.store_double_loss_lines()  # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
         self.double_loss_clear()
 
-    def add_dqn_loss(self, loss, accuracy, f1):
+    def add_dqn_loss(self, loss, accuracy, f1=None):
         # print("add dqn_loss=%s:" % loss)
         self.dqn_loss_his.append(loss)
         self.dqn_acc_his.append(accuracy)
-        self.dqn_f1.append(f1)
+        # self.dqn_f1.append(f1)
 
     def dqn_loss_clear(self):
         self.dqn_loss_his = []
+        self.dqn_acc_his = []
 
-    def add_double_loss(self, loss, accuracy, f1):
+    def add_double_loss(self, loss, accuracy, f1=None):
         # print("add double_loss=%s:" % loss)
         self.double_loss_his.append(loss)
         self.double_acc_his.append(accuracy)
-        self.double_f1.append(f1)
+        # self.double_f1.append(f1)
 
     def double_loss_clear(self):
         self.double_loss_his = []
+        self.double_acc_his = []
 
     def store_all_lines(self):
         """

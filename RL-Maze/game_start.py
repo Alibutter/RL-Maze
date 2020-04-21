@@ -53,8 +53,8 @@ class GameInit:
         """
         进入游戏界面
         """
-        collections = Collect(adjust_params=True)       # DQN与DoubleDQN调参模式
-        # collections = Collect()                         # 正常显示算法分析曲线图模式
+        # collections = Collect(adjust_params=True)       # DQN与DoubleDQN调参模式
+        collections = Collect()                         # 正常显示算法分析曲线图模式
         # collections = None                              # 不显示算法分析曲线图模式
 
         env = MazeEnv(self.py, self.screen, collections)
@@ -83,8 +83,9 @@ class GameInit:
 
 
 if __name__ == '__main__':
-    py.init()                                   # 初始化pygame
+    py.init()  # 初始化pygame
     screen = py.display.set_mode(Size.WINDOW)   # 设置pygame窗体大小
     py.display.set_caption(Strings.TITLE)       # 设置窗口标题
     game = GameInit(py, screen)
     game.menu_view()
+
