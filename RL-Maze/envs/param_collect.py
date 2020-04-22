@@ -19,8 +19,8 @@ lines_max = Properties.LINES_MAX
         曲线)对比图“Different Metrics Compared In Current Maze”
         窗口，即使只执行了两者其一，该窗口也会显示
         
-    （3）Reward曲线横向对比：（相同迷宫 不同算法）
-        同一迷宫内保存最新执行的DQN与DoubleDQN算法所得Reward曲线记
+    （已取消）Q值曲线横向对比：（相同迷宫 不同算法）
+        同一迷宫内保存最新执行的DQN与DoubleDQN算法所得Q值曲线记
         录,显示"Different Rewards In Current Maze"窗口，对比DQN
         与DoubleDQN过拟合情况，即使只执行了两者其一，该窗口也会显示，
         若两个算法均为执行过则不会显示
@@ -397,8 +397,8 @@ class Collect:
         DQN与DoubleDQN，不同算法在相同迷宫环境中，loss,accuracy曲线对比曲线
         """
         fig = plt.figure("Different Metrics Compared In Current Maze")
+        ax = fig.add_subplot(1, 1, 1)
         plt.title('Loss And Accuracy Analysis', fontsize=10)
-        ax = fig.add_subplot(111)
         ax2 = ax.twinx()
         ax.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
         ax2.plot(np.arange(len(self.dqn_acc)), self.dqn_acc, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='>')
@@ -542,13 +542,11 @@ class Collect:
             # self.figure_different_scores_steps_compared()       # 不同算法的步长与得分曲线对比
             self.figure_different_loss_compared()               # DQN与DoubleDQN在当前环境中的loss曲线对比
             self.figure_self_loss_compared()                    # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
-            self.figure_different_q_compared()  # 不同算法reward曲线对比
         else:
             self.figure_different_scores_steps_compared()       # 不同算法的步长与得分曲线对比
             self.figure_self_scores_compared()                  # 同一算法在不同迷宫环境的得分曲线对比
             self.figure_different_loss_compared()               # DQN与DoubleDQN在当前环境中的loss曲线对比
             self.figure_self_loss_compared()                    # DQN与DoubleDQN在不同环境中的loss曲线自我对比
-            self.figure_different_q_compared()                  # 不同算法reward曲线对比
         plt.show()
 
 
