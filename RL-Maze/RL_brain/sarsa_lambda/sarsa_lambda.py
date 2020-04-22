@@ -15,7 +15,7 @@ class SarsaLambda:
         self.env.buttons_reset(Strings.S_LAMBDA)                                    # 除按下的按钮外，将其他按钮状态恢复正常
         self.env.QT = None                                                          # 将Env中的QT对象置空
         if self.collections:                                                        # 清空收集的旧数据
-            self.collections.sl_params_clear()
+            self.collections.params_clear('sl')
         self.env.QT = STable(actions=list(range(self.env.n_actions)), e_greedy_increment=0.0005)
         print("\n----------Reinforcement Learning with Sarsa(λ) start:----------")
         self.update()
@@ -55,7 +55,7 @@ class SarsaLambda:
                     else:
                         terminal = 'to WALL'
                     if self.collections:                                            # 收集数据绘制图表
-                        self.collections.add_sl_param(step, score)
+                        self.collections.add_params('sl', step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
                           .format(episode + 1, step, terminal, score))
                     break
