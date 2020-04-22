@@ -19,6 +19,11 @@ lines_max = Properties.LINES_MAX
         曲线)对比图“Different Metrics Compared In Current Maze”
         窗口，即使只执行了两者其一，该窗口也会显示
         
+    （3）Reward曲线横向对比：（相同迷宫 不同算法）
+        同一迷宫内保存最新执行的DQN与DoubleDQN算法所得Reward曲线记
+        录,显示"Different Rewards In Current Maze"窗口，对比DQN
+        与DoubleDQN过拟合情况
+        
     2.截至当前迷宫、各个算法最新执行结果之前的历史数据（不包括最新执行的数据）的曲线对比图
     （3）算法效果纵向对比：（不同迷宫 相同算法）
         每当刷新迷宫时，都将保存在上一迷宫环境中每个执行过的算法所
@@ -38,7 +43,7 @@ lines_max = Properties.LINES_MAX
             显示
         [B].调参模式：（相同迷宫 相同算法）
             *******************    注意    ********************
-              调参模式中，只显示“Self Loss Compared In Current 
+              调参模式中，才显示“Self Loss Compared In Current 
               Maze For Adjusting Params”窗口。为了确保是在相同  
               迷宫下，记录各个算法不同参数的loss曲线，在某一迷宫  
               地图调参时，请勿点击“Refresh”刷新按钮，否则会出现  
@@ -52,6 +57,7 @@ lines_max = Properties.LINES_MAX
             我对比图“Self Loss Compared In Current Maze For Adju
             sting Params”窗口。且只要两者任一算法曾经在当前迷宫执行，
             该窗口就会显示，以便随时查看参数调整效果
+            
     
 """
 
@@ -61,20 +67,20 @@ class Collect:
         self.adjust_params = adjust_params  # 是否为调参状态
         # (1)得分与步长
         # Q-learning数据
-        self.q_step_his = []
-        self.q_score_his = []
+        self.q_step = []
+        self.q_score = []
         # Sarsa数据
-        self.s_step_his = []
-        self.s_score_his = []
+        self.s_step = []
+        self.s_score = []
         # Sarsa(lambda)数据
-        self.sl_step_his = []
-        self.sl_score_his = []
+        self.sl_step = []
+        self.sl_score = []
         # DQN数据
-        self.dqn_step_his = []
-        self.dqn_score_his = []
+        self.dqn_step = []
+        self.dqn_score = []
         # DoubleDQN数据
-        self.double_step_his = []
-        self.double_score_his = []
+        self.double_step = []
+        self.double_score = []
 
         # (2)单个算法不同地图中的得分曲线历史记录
         self.q_line_his = []
@@ -84,211 +90,238 @@ class Collect:
         self.double_line_his = []
 
         # (3)# 记录每一步的误差,绘制loss曲线
-        self.dqn_loss_his = []
-        self.double_loss_his = []
+        self.dqn_loss = []
+        self.double_loss = []
 
         # (4)loss曲线历史记录
         self.dqn_loss_line_his = []
         self.double_loss_line_his = []
 
         # (5)accuracy准确率曲线记录
-        self.dqn_acc_his = []
-        self.double_acc_his = []
+        self.dqn_acc = []
+        self.double_acc = []
 
-        # # (6)f1_score曲线记录
+        # (6)选取的Q值曲线记录
+        self.q_q = []
+        self.s_q = []
+        self.sl_q = []
+        self.dqn_q = []
+        self.double_q = []
+
+        # (7)f1_score曲线记录
         # self.dqn_f1 = []
         # self.double_f1 = []
 
-    def add_q_param(self, step, score):
-        self.q_step_his.append(step)
-        self.q_score_his.append(score)
+    def add_params(self, name, step, score):
+        """
+        保存算法最新执行的步长和得分曲线
+        :param name: 算法名称
+        :param step: 步长
+        :param score: 得分
+        """
+        if name is 'q':
+            self.q_step.append(step)
+            self.q_score.append(score)
+        elif name is 's':
+            self.sl_step.append(step)
+            self.s_score.append(score)
+        elif name is 'sl':
+            self.sl_step.append(step)
+            self.sl_score.append(score)
+        elif name is 'dqn':
+            self.dqn_step.append(step)
+            self.dqn_score.append(score)
+        elif name is 'double':
+            self.double_step.append(step)
+            self.double_score.append(score)
 
-    def q_params_clear(self):
-        self.q_step_his = []
-        self.q_score_his = []
+    def add_q(self, name, q):
+        """
+        保存算法最新执行的reward曲线
+        :param name:
+        :param q:
+        """
+        if name is 'q':
+            self.q_q.append(q)
+        elif name is 's':
+            self.s_q.append(q)
+        elif name is 'sl':
+            self.sl_q.append(q)
+        elif name is 'dqn':
+            self.dqn_q.append(q)
+        elif name is 'double':
+            self.double_q.append(q)
 
-    def add_s_param(self, step, score):
-        self.s_step_his.append(step)
-        self.s_score_his.append(score)
+    def add_loss(self, name, loss, accuracy, f1=None):
+        """
+        添加算法最新执行的loss曲线
+        :param name: 算法名称
+        :param loss: loss误差
+        :param accuracy: 准确率
+        :param f1: f1得分，默认不记录
+        """
+        if name is 'dqn':
+            self.dqn_loss.append(loss)
+            self.dqn_acc.append(accuracy)
+            # self.dqn_f1.append(f1)
+        elif name is 'double':
+            self.double_loss.append(loss)
+            self.double_acc.append(accuracy)
+            # self.double_f1.append(f1)
 
-    def s_params_clear(self):
-        self.s_step_his = []
-        self.s_score_his = []
+    def params_clear(self, name):
+        """
+        清除算法上次执行的得分和步长曲线
+        :param name: 算法名称
+        """
+        if name is 'q':
+            self.q_step = []
+            self.q_score = []
+        elif name is 's':
+            self.sl_step = []
+            self.s_score = []
+        elif name is 'sl':
+            self.sl_step = []
+            self.sl_score = []
+        elif name is 'dqn':
+            self.dqn_step = []
+            self.dqn_score = []
+            if self.adjust_params and self.dqn_loss:
+                self.store_loss_his(name)  # 此处仅用于在某个迷宫环境为DQN调参，正常状态下无效
+            self.loss_clear(name)
+        elif name is 'double':
+            self.double_step = []
+            self.double_score = []
+            if self.adjust_params and self.double_loss:
+                self.store_loss_his(name)  # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
+            self.loss_clear(name)
 
-    def add_sl_param(self, step, score):
-        self.sl_step_his.append(step)
-        self.sl_score_his.append(score)
+    def loss_clear(self, name):
+        """
+        清除算法上次执行的loss曲线
+        :param name: 算法名称
+        """
+        if name is 'dqn':
+            self.dqn_loss = []
+            self.dqn_acc = []
+        elif name is 'double':
+            self.double_loss = []
+            self.double_acc = []
 
-    def sl_params_clear(self):
-        self.sl_step_his = []
-        self.sl_score_his = []
+    def store_line_his(self, name):
+        """
+        保存算法得分的历史曲线
+        :param name: 算法名称
+        """
+        if name is 'q':                             # 保存QLearn的得分历史曲线
+            if len(self.q_line_his) < lines_max:
+                self.q_line_his.append(self.q_score)
+            else:
+                self.q_line_his.pop(0)
+                self.q_line_his.append(self.q_score)
 
-    def add_dqn_param(self, step, score):
-        self.dqn_step_his.append(step)
-        self.dqn_score_his.append(score)
+        elif name is 's':                           # 保存Sarsa的得分历史曲线
+            if len(self.s_line_his) < lines_max:
+                self.s_line_his.append(self.s_score)
+            else:
+                self.s_line_his.pop(0)
+                self.s_line_his.append(self.s_score)
+        elif name is 'sl':                          # 保存Sarsa(λ)的得分历史曲线
+            if len(self.sl_line_his) < lines_max:
+                self.sl_line_his.append(self.sl_score)
+            else:
+                self.sl_line_his.pop(0)
+                self.sl_line_his.append(self.sl_score)
+        elif name is 'dqn':                         # 保存DQN的得分历史曲线
+            if len(self.dqn_line_his) < lines_max:
+                self.dqn_line_his.append(self.dqn_score)
+            else:
+                self.dqn_line_his.pop(0)
+                self.dqn_line_his.append(self.dqn_score)
+        elif name is 'double':                      # 保存DoubleDQN的得分历史曲线
+            if len(self.double_line_his) < lines_max:
+                self.double_line_his.append(self.double_score)
+            else:
+                self.double_line_his.pop(0)
+                self.double_line_his.append(self.double_score)
 
-    def dqn_params_clear(self):
-        self.dqn_step_his = []
-        self.dqn_score_his = []
-        if self.adjust_params and self.dqn_loss_his:
-            self.store_dqn_loss_lines()  # 此处仅用于在某个迷宫环境为DQN调参，正常状态下无效
-        self.dqn_loss_clear()
-
-    def add_double_param(self, step, score):
-        self.double_step_his.append(step)
-        self.double_score_his.append(score)
-
-    def double_params_clear(self):
-        self.double_step_his = []
-        self.double_score_his = []
-        if self.adjust_params and self.double_loss_his:
-            self.store_double_loss_lines()  # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
-        self.double_loss_clear()
-
-    def add_dqn_loss(self, loss, accuracy, f1=None):
-        # print("add dqn_loss=%s:" % loss)
-        self.dqn_loss_his.append(loss)
-        self.dqn_acc_his.append(accuracy)
-        # self.dqn_f1.append(f1)
-
-    def dqn_loss_clear(self):
-        self.dqn_loss_his = []
-        self.dqn_acc_his = []
-
-    def add_double_loss(self, loss, accuracy, f1=None):
-        # print("add double_loss=%s:" % loss)
-        self.double_loss_his.append(loss)
-        self.double_acc_his.append(accuracy)
-        # self.double_f1.append(f1)
-
-    def double_loss_clear(self):
-        self.double_loss_his = []
-        self.double_acc_his = []
+    def store_loss_his(self, name):
+        """
+        保存算法多次执行的loss曲线历史记录
+        :param name:
+        """
+        if name is 'dqn':                           # 保存旧的DQN算法loss曲线历史
+            if len(self.dqn_loss_line_his) < lines_max:
+                self.dqn_loss_line_his.append(self.dqn_loss)
+            else:
+                self.dqn_loss_line_his.pop(0)
+                self.dqn_loss_line_his.append(self.dqn_loss)
+        elif name is 'double':                      # 保存旧的DoubleDQN算法loss曲线历史
+            if len(self.double_loss_line_his) < lines_max:
+                self.double_loss_line_his.append(self.double_loss)
+            else:
+                self.double_loss_line_his.pop(0)
+                self.double_loss_line_his.append(self.double_loss)
 
     def store_all_lines(self):
         """
-        将当前的迷宫环境中各个算法的各个曲线保存
+        将当前的迷宫环境中各个算法的各个曲线保存在历史记录
         """
         # 将当前的迷宫环境中各个算法学习得分曲线保存
-        if len(self.q_score_his) > 0:
-            self.store_old_q_lines()
-        if len(self.s_score_his) > 0:
-            self.store_old_s_lines()
-        if len(self.sl_score_his) > 0:
-            self.store_old_sl_lines()
-        if len(self.dqn_score_his) > 0:
-            self.store_old_dqn_lines()
-        if len(self.double_score_his) > 0:
-            self.store_old_double_lines()
+        if len(self.q_score) > 0:
+            self.store_line_his('q')
+        if len(self.s_score) > 0:
+            self.store_line_his('s')
+        if len(self.sl_score) > 0:
+            self.store_line_his('sl')
+        if len(self.dqn_score) > 0:
+            self.store_line_his('dqn')
+        if len(self.double_score) > 0:
+            self.store_line_his('double')
 
         if not self.adjust_params:
             # 将当前的loss曲线保存
-            if len(self.dqn_loss_his) > 0:
-                self.store_dqn_loss_lines()
-            if len(self.double_loss_his) > 0:
-                self.store_double_loss_lines()
+            if len(self.dqn_loss) > 0:
+                self.store_loss_his('dqn')
+            if len(self.double_loss) > 0:
+                self.store_loss_his('double')
 
     def all_params_his_clear(self):
         """
         将当前的迷宫环境中各个算法的各个曲线数据清空
         """
         # 清除Q-learning数据
-        self.q_params_clear()
+        self.params_clear('q')
         # 清除Sarsa数据
-        self.s_params_clear()
+        self.params_clear('s')
         # 清除Sarsa(lambda)数据
-        self.sl_params_clear()
+        self.params_clear('sl')
         # 清除DQN数据
-        self.dqn_params_clear()
-        self.dqn_loss_clear()
+        self.params_clear('dqn')
+        self.loss_clear('dqn')
         # 清除DoubleDQN数据
-        self.double_params_clear()
-        self.double_loss_clear()
+        self.params_clear('double')
+        self.loss_clear('double')
 
     def scores_compared_clear(self):
         """
         清除刷新前迷宫环境的所有旧数据
         """
-        self.store_all_lines()  # 将当前所有学习曲线保存
-        self.all_params_his_clear()  # 清除当前保存后的所有学习曲线
-
-    def store_old_q_lines(self):
-        """
-        保存旧的QLearn算法得分曲线
-        """
-        # 保存QLearn历史折线
-        if len(self.q_line_his) < lines_max:
-            self.q_line_his.append(self.q_score_his)
-        else:
-            self.q_line_his.pop(0)
-            self.q_line_his.append(self.q_score_his)
-
-    def store_old_s_lines(self):
-        """
-        保存旧的Sarsa算法得分曲线
-        """
-        if len(self.s_line_his) < lines_max:
-            self.s_line_his.append(self.s_score_his)
-        else:
-            self.s_line_his.pop(0)
-            self.s_line_his.append(self.s_score_his)
-
-    def store_old_sl_lines(self):
-        """
-        保存旧的Sarsa(λ)算法得分曲线
-        """
-        if len(self.sl_line_his) < lines_max:
-            self.sl_line_his.append(self.sl_score_his)
-        else:
-            self.sl_line_his.pop(0)
-            self.sl_line_his.append(self.sl_score_his)
-
-    def store_old_dqn_lines(self):
-        """
-        保存旧的DQN算法得分曲线
-        """
-        if len(self.dqn_line_his) < lines_max:
-            self.dqn_line_his.append(self.dqn_score_his)
-        else:
-            self.dqn_line_his.pop(0)
-            self.dqn_line_his.append(self.dqn_score_his)
-
-    def store_old_double_lines(self):
-        """
-        保存旧的doubleDQN算法得分曲线
-        """
-        if len(self.double_line_his) < lines_max:
-            self.double_line_his.append(self.double_score_his)
-        else:
-            self.double_line_his.pop(0)
-            self.double_line_his.append(self.double_score_his)
-
-    def store_dqn_loss_lines(self):
-        if len(self.dqn_loss_line_his) < lines_max:
-            self.dqn_loss_line_his.append(self.dqn_loss_his)
-        else:
-            self.dqn_loss_line_his.pop(0)
-            self.dqn_loss_line_his.append(self.dqn_loss_his)
-
-    def store_double_loss_lines(self):
-        if len(self.double_loss_line_his) < lines_max:
-            self.double_loss_line_his.append(self.double_loss_his)
-        else:
-            self.double_loss_line_his.pop(0)
-            self.double_loss_line_his.append(self.double_loss_his)
+        self.store_all_lines()          # 将当前所有学习曲线保存
+        self.all_params_his_clear()     # 清除当前保存后的所有学习曲线
 
     def scores_compared(self):
         """
         不同算法在相同迷宫环境中，每次学习得分对比曲线
         """
         plt.title('Scores Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_score_his)), self.q_score_his, color='green', label='QLearn', linewidth='1.2')
-        plt.plot(np.arange(len(self.s_score_his)), self.s_score_his, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_score_his)), self.sl_score_his, color='skyblue', label='Sarsa(λ)',
+        plt.plot(np.arange(len(self.q_score)), self.q_score, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_score)), self.s_score, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_score)), self.sl_score, color='skyblue', label='Sarsa(λ)',
                  linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_score_his)), self.dqn_score_his, color='#cb33ff', label='DQN', linewidth='1.2',
+        plt.plot(np.arange(len(self.dqn_score)), self.dqn_score, color='#cb33ff', label='DQN', linewidth='1.2',
                  linestyle='-')
-        plt.plot(np.arange(len(self.double_score_his)), self.double_score_his, color='#ff8c1a', label='DDQN',
+        plt.plot(np.arange(len(self.double_score)), self.double_score, color='#ff8c1a', label='DDQN',
                  linewidth='1.2')
         # plt.ylim(-700, 500)
         plt.legend()  # 显示图例说明Label标签
@@ -300,11 +333,11 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习步长对比曲线
         """
         plt.title('Steps Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_step_his)), self.q_step_his, color='green', label='QLearn', linewidth='1.2')
-        plt.plot(np.arange(len(self.s_step_his)), self.s_step_his, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_step_his)), self.sl_step_his, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_step_his)), self.dqn_step_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
-        plt.plot(np.arange(len(self.double_step_his)), self.double_step_his, color='#ff9933', label='DDQN', linewidth='1.2')
+        plt.plot(np.arange(len(self.q_step)), self.q_step, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_step)), self.s_step, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_step)), self.sl_step, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_step)), self.dqn_step, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+        plt.plot(np.arange(len(self.double_step)), self.double_step, color='#ff9933', label='DDQN', linewidth='1.2')
         # plt.ylim(-1, 700)
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Steps', fontsize=10)
@@ -337,11 +370,11 @@ class Collect:
         ax_f1.axis['right2'] = load_axisline(loc='right', axes=ax_f1, offset=(40, 0))
         fig.add_axes(ax_loss)
 
-        ax_loss.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
-        ax_acc.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle='-')
+        ax_loss.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+        ax_acc.plot(np.arange(len(self.dqn_acc)), self.dqn_acc, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle='-')
         # ax_f1.plot(np.arange(len(self.dqn_f1)), self.dqn_f1, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='*')
-        ax_loss.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
-        ax_acc.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle='-')
+        ax_loss.plot(np.arange(len(self.double_loss)), self.double_loss, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
+        ax_acc.plot(np.arange(len(self.double_acc)), self.double_acc, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle='-')
         # ax_f1.plot(np.arange(len(self.double_f1)), self.double_f1, color='#ffe5cc', label='DDQN_F1', linewidth='1', linestyle=':', marker='o')
         ax_loss.legend()
         # 轴名称，刻度值的颜色
@@ -366,14 +399,15 @@ class Collect:
         plt.title('Loss And Accuracy Analysis', fontsize=10)
         ax = fig.add_subplot(111)
         ax2 = ax.twinx()
-        ax.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
-        ax2.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='o')
-        ax.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
-        ax2.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle=':', marker='*')
+        ax.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+        ax2.plot(np.arange(len(self.dqn_acc)), self.dqn_acc, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='>')
+        ax.plot(np.arange(len(self.double_loss)), self.double_loss, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
+        ax2.plot(np.arange(len(self.double_acc)), self.double_acc, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle=':', marker='*')
         fig.legend(loc=1, bbox_to_anchor=(1, 1), bbox_transform=ax.transAxes)
         ax.set_xlabel('Training times', fontsize=10)
         ax.set_ylabel('Loss', fontsize=10)
         ax2.set_ylabel('Accuracy', fontsize=10)
+        ax2.set_ylim(0, 1)
 
     def loss_compared(self):
         """
@@ -381,24 +415,58 @@ class Collect:
         """
         plt.figure("Different Loss Compared In Current Maze")
         plt.title('Loss Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.dqn_loss_his)), self.dqn_loss_his, color='black', label='DQN', linewidth='1', linestyle='-')
-        plt.plot(np.arange(len(self.dqn_acc_his)), self.dqn_acc_his, color='#cccccc', label='DQN_acc', linewidth='1.5', linestyle='-')
-        plt.plot(np.arange(len(self.double_loss_his)), self.double_loss_his, color='gold', label='DDQN', linewidth='1', linestyle='-')
-        plt.plot(np.arange(len(self.double_acc_his)), self.double_acc_his, color='#ffcc99', label='DDQN_acc', linewidth='2', linestyle='-')
+        plt.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='black', label='DQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.double_loss)), self.double_loss, color='gold', label='DDQN', linewidth='1', linestyle='-')
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Loss', fontsize=10)
         plt.xlabel('Training times', fontsize=10)
+
+    def traditional_q_compared(self):
+        """
+        传统强化学习算法的reward曲线对比
+        """
+        plt.title('Q Analysis', fontsize=10)
+        plt.plot(np.arange(len(self.q_q)), self.q_q, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_q)), self.s_q, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_q)), self.sl_q, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.legend()  # 显示图例说明Label标签
+        plt.ylabel('Q values', fontsize=10)
+        plt.xlabel('Action choose times', fontsize=10)
+
+    def dqn_q_compared(self):
+        """
+        DQN与DoubleDQN算法的reward曲线对比
+        """
+        plt.title('Q Analysis', fontsize=10)
+        plt.plot(np.arange(len(self.dqn_q)), self.dqn_q, color='#cb33ff', label='DQN', linewidth='1.2',
+                 linestyle='-')
+        plt.plot(np.arange(len(self.double_q)), self.double_q, color='#ff9933', label='DDQN', linewidth='1.2')
+        # plt.ylim(-1, 700)
+        plt.legend()  # 显示图例说明Label标签
+        plt.ylabel('Q values', fontsize=10)
+        plt.xlabel('Action choose times', fontsize=10)
+
+    def figure_different_q_compared(self):
+        """
+        显示不同算法的reward曲线对比
+        """
+        if len(self.dqn_q) > 0 or len(self.double_q) > 0:
+            plt.figure("Different Rewards In Current Maze")
+            self.dqn_q_compared()               # DQN与DoubleDQN算法Q值曲线对比
+        else:
+            print("no DQN or DoubleDQN run in current maze, so the window \"Different Rewards "
+                  "In Current Maze\" won't show!")
 
     def figure_different_scores_steps_compared(self):
         """
         Different Algorithm In Current Maze窗口，展示不同算法在同一环境下的执行效果对比
         """
-        if len(self.q_step_his) > 0 or len(self.s_step_his) > 0 \
-                or len(self.sl_step_his) > 0 or len(self.dqn_step_his) > 0 \
-                or len(self.double_step_his) > 0:
+        if len(self.q_step) > 0 or len(self.s_step) > 0 \
+                or len(self.sl_step) > 0 or len(self.dqn_step) > 0 \
+                or len(self.double_step) > 0:
             plt.figure("Different Algorithm In Current Maze")
             plt.subplot(1, 2, 1)
-            self.steps_compared()  # 不同算法 步长对比
+            self.steps_compared()   # 不同算法 步长对比
             plt.subplot(1, 2, 2)
             self.scores_compared()  # 不同算法 得分对比
         else:
@@ -431,7 +499,7 @@ class Collect:
         """
         Different Loss Compared In Current Maze窗口，展示不同算法在同一环境中的loss曲线对比
         """
-        if len(self.dqn_loss_his) or len(self.double_loss_his):
+        if len(self.dqn_loss) or len(self.double_loss):
             # self.loss_compared()            # 只显示loss曲线
             self.loss_acc_compared()        # 只显示loss，accuracy曲线
         else:
@@ -469,17 +537,17 @@ class Collect:
         """
         显示算法分析图表
         """
-        # self.store_all_lines()                              # 将当前所有学习曲线保存
         if self.adjust_params:
-            self.figure_different_scores_steps_compared()  # 不同算法的步长与得分曲线对比
-            self.figure_different_loss_compared()  # DQN与DoubleDQN在当前环境中的loss曲线对比
-            self.figure_self_loss_compared()  # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
+            # self.figure_different_scores_steps_compared()       # 不同算法的步长与得分曲线对比
+            self.figure_different_loss_compared()               # DQN与DoubleDQN在当前环境中的loss曲线对比
+            self.figure_self_loss_compared()                    # 只显示DQN与DoubleDQN在相同环境中不同参数的loss曲线自我对比（用于调参）
+            self.figure_different_q_compared()  # 不同算法reward曲线对比
         else:
-            self.figure_different_scores_steps_compared()  # 不同算法的步长与得分曲线对比
-            self.figure_self_scores_compared()  # 同一算法在不同迷宫环境的得分曲线对比
-            self.figure_different_loss_compared()  # DQN与DoubleDQN在当前环境中的loss曲线对比
-            self.figure_self_loss_compared()  # DQN与DoubleDQN在不同环境中的loss曲线自我对比
-        # self.all_params_his_clear()                         # 将当前所有学习曲线
+            self.figure_different_scores_steps_compared()       # 不同算法的步长与得分曲线对比
+            self.figure_self_scores_compared()                  # 同一算法在不同迷宫环境的得分曲线对比
+            self.figure_different_loss_compared()               # DQN与DoubleDQN在当前环境中的loss曲线对比
+            self.figure_self_loss_compared()                    # DQN与DoubleDQN在不同环境中的loss曲线自我对比
+            self.figure_different_q_compared()                  # 不同算法reward曲线对比
         plt.show()
 
 
@@ -507,7 +575,7 @@ def algorithm_analysis(title, line_his, loss=False):
         for q in line_his:
             plt.plot(np.arange(len(q)), q, color=color[i], label=line_label + str(i), linewidth='1')
             i += 1
-        plt.legend()  # 显示图例说明Label标签
+        plt.legend()                                # 显示图例说明Label标签
     plt.title(title, fontsize=10)
     plt.ylabel(y_label, fontsize=10)
     plt.xlabel(x_label, fontsize=10)
