@@ -1,5 +1,4 @@
 from tools.config import Strings, Status
-import numpy as np
 from RL_brain.dqn.dq_network import DeepQNetwork
 from RL_brain.dqn.my_model import EvalModel, TargetModel
 
@@ -22,7 +21,7 @@ class DoubleDQN:
         self.env.buttons_reset(Strings.Double_DQN)                                  # 除按下的按钮外，将其他按钮状态恢复正常
         self.env.QT = None                                                          # 将Env中的QT对象置空
         if self.collections:                                                        # 清空收集的旧数据
-            self.collections.double_params_clear()
+            self.collections.params_clear('double')
         eval_model = EvalModel(num_actions=self.env.n_actions)
         target_model = TargetModel(num_actions=self.env.n_actions)
         self.env.QT = DeepQNetwork(self.env.n_actions, self.env.n_features, eval_model, target_model,
@@ -30,10 +29,10 @@ class DoubleDQN:
                                    learning_rate=0.01,
                                    reward_decay=0.9,
                                    e_greedy=0.9,
-                                   replace_target_iter=20,
+                                   replace_target_iter=30,
                                    memory_size=2000,
-                                   batch_size=20,
-                                   # e_greedy_increment=0.05,                       # 是否按照指定增长率 动态设置增长epsilon
+                                   batch_size=32,
+                                   e_greedy_increment=0.001,                       # 是否按照指定增长率 动态设置增长epsilon
                                    param_collect=self.collections
                                    )
         print("\n----------Reinforcement Learning with DoubleDQN-Learning start:----------")
@@ -56,20 +55,18 @@ class DoubleDQN:
                 if not self.env.QT or not isinstance(self.env.QT, DeepQNetwork):    # 检查是否因为切换按钮导致Env中的QT对象发生变换
                     # print('MazeEnv.QT is None after refresh or its type is not DeepQNetwork, DoubleDQN-Learning is stopped')
                     return
-
-                action = self.env.QT.choose_action(self.env.reward_table, self.env.agent)  # 通过强化学习算法选择智能体当前状态下的动作
+                # 通过强化学习算法选择智能体当前状态下的动作
+                action = self.env.QT.choose_action(self.env.reward_table, self.env.agent)  # 加动作集限制的动作决策
+                # action = self.env.QT.choose_action_unlimited(np.array(self.env.agent))    # 不加动作集限制的动作决策
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
-
-                # 将Env中的状态值强制转换为float类型
-                state = np.array(self.env.back_agent).astype(float)
-                next_state = np.array(self.env.agent).astype(float)
-                self.env.QT.store_transition(state, action, reward, next_state)     # 添加到经验池
+                reward /= 5
+                self.env.QT.store_transition(self.env.back_agent, action, reward, self.env.agent)     # 添加到经验池
                 step_sum += 1
 
                 # self.env.QT.learn()
                 # if exit_time >= 2 and step >= 200 and step % 10 == 0:
-                if step_sum >= 200 and step_sum % 30 == 0:
+                if step_sum >= 2000 and step_sum % 5 == 0:
                     self.env.QT.learn(observation_, self.env.reward_table)
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
@@ -83,7 +80,7 @@ class DoubleDQN:
                     else:
                         terminal = 'to WALL'
                     if self.collections:                                            # 收集数据绘制图表
-                        self.collections.add_double_param(episode_step, score)
+                        self.collections.add_params('double', episode_step, score)
                     print('{0} time episode has been done with using {1} steps {2} at the score {3}'
                           .format(episode + 1, episode_step, terminal, score))
                     break
