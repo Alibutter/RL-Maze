@@ -22,7 +22,8 @@ lines_max = Properties.LINES_MAX
     （3）Reward曲线横向对比：（相同迷宫 不同算法）
         同一迷宫内保存最新执行的DQN与DoubleDQN算法所得Reward曲线记
         录,显示"Different Rewards In Current Maze"窗口，对比DQN
-        与DoubleDQN过拟合情况
+        与DoubleDQN过拟合情况，即使只执行了两者其一，该窗口也会显示，
+        若两个算法均为执行过则不会显示
         
     2.截至当前迷宫、各个算法最新执行结果之前的历史数据（不包括最新执行的数据）的曲线对比图
     （3）算法效果纵向对比：（不同迷宫 相同算法）
