@@ -124,7 +124,7 @@ class Collect:
             self.q_step.append(step)
             self.q_score.append(score)
         elif name is 's':
-            self.sl_step.append(step)
+            self.s_step.append(step)
             self.s_score.append(score)
         elif name is 'sl':
             self.sl_step.append(step)
@@ -179,7 +179,7 @@ class Collect:
             self.q_step = []
             self.q_score = []
         elif name is 's':
-            self.sl_step = []
+            self.s_step = []
             self.s_score = []
         elif name is 'sl':
             self.sl_step = []
