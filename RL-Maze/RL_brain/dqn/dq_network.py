@@ -3,6 +3,7 @@ import pandas as pd
 from tools.config import CellWeight
 from tensorflow.keras import backend as K
 from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.metrics import sparse_categorical_accuracy as sca
 
 
 class DeepQNetwork:
@@ -54,8 +55,8 @@ class DeepQNetwork:
         self.eval_model = eval_model
         self.target_model = target_model
 
-        for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
-            target_layer.set_weights(eval_layer.get_weights())
+        # for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
+        #     target_layer.set_weights(eval_layer.get_weights())
 
         self.double_q = double_q
         self.eval_model.compile(
@@ -225,7 +226,7 @@ class DeepQNetwork:
         # 然后训练eval_model网络,获得误差和准确率
         training_x = batch_memory.iloc[:, :self.params['n_features']]
         [loss, accuracy] = self.eval_model.train_on_batch(training_x, q_target)
-        print('| Train on %s times %s samples down | loss:%s,  accuracy:%s' % (self.learn_step_counter, batch_size, loss, accuracy))
+        print('| Train on %s times | loss:%s, accuracy:%s' % (self.learn_step_counter, loss, accuracy))
         # loss, accuracy, mae = None, None, None
         # self.eval_model.fit(training_x, q_target, batch_size=32, epochs=10, verbose=1)
 
@@ -243,8 +244,9 @@ class DeepQNetwork:
                 self.collections.add_loss('dqn', loss, accuracy)
 
         # 动态增长epsilon
-        self.epsilon = self.epsilon + self.params['e_greedy_increment'] if self.epsilon < self.params['e_greedy'] \
-            else self.params['e_greedy']
+        if self.params['e_greedy_increment']:
+            self.epsilon = self.epsilon + self.params['e_greedy_increment'] if self.epsilon < self.params['e_greedy'] \
+                else self.params['e_greedy']
         self.learn_step_counter += 1                                    # 学习次数自增一
 
 
@@ -291,7 +293,7 @@ def recall(y_true, y_pred):
 
 
 def precision(y_true, y_pred):
-    """准确率指标
+    """精确率指标
     :param y_true: 真实值
     :param y_pred: 预测值
     :return:
