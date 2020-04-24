@@ -4,11 +4,10 @@ from tools.config import CellWeight
 
 
 class STable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.98, trace_decay=0.9, e_greedy_increment=None):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.95, trace_decay=0.9, e_greedy_increment=None):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1
         self.gamma = reward_decay       # 折扣因子，未来奖励的衰减值
-        self.learn_time = 0             # 记录学习次数
         self.e_greedy = e_greedy        # 贪婪因子上限值
         self.epsilon_increment = e_greedy_increment     # 贪婪因子的动态增长值
         self.epsilon = 0.9 if self.epsilon_increment is not None else self.e_greedy  # 贪婪因子，选择最优值的概率
@@ -36,8 +35,7 @@ class STable:
         self.e_table *= self.gamma * self.lambda_           # 随着时间衰减 eligibility trace 的值, 离获取 reward 越远的步, 他的"不可或缺性"越小
 
         if self.epsilon_increment:
-            self.learn_time += 1
-            self.epsilon = self.epsilon + self.epsilon_increment * self.learn_time if self.epsilon < self.e_greedy else self.e_greedy
+            self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
 
     def choose_action_unlimited(self, observation):
         """

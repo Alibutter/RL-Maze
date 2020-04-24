@@ -110,8 +110,8 @@ class Collect:
         self.double_q = []
 
         # (7)f1_score曲线记录
-        # self.dqn_f1 = []
-        # self.double_f1 = []
+        self.dqn_f1 = []
+        self.double_f1 = []
 
     def add_params(self, name, step, score):
         """
@@ -373,13 +373,13 @@ class Collect:
 
         ax_loss.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
         ax_acc.plot(np.arange(len(self.dqn_acc)), self.dqn_acc, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle='-')
-        # ax_f1.plot(np.arange(len(self.dqn_f1)), self.dqn_f1, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='*')
+        ax_f1.plot(np.arange(len(self.dqn_f1)), self.dqn_f1, color='#f3ccff', label='DQN_acc', linewidth='1', linestyle=':', marker='*')
         ax_loss.plot(np.arange(len(self.double_loss)), self.double_loss, color='#ff9933', label='DDQN', linewidth='1.2', linestyle='-')
         ax_acc.plot(np.arange(len(self.double_acc)), self.double_acc, color='#ffe5cc', label='DDQN_acc', linewidth='1', linestyle='-')
-        # ax_f1.plot(np.arange(len(self.double_f1)), self.double_f1, color='#ffe5cc', label='DDQN_F1', linewidth='1', linestyle=':', marker='o')
+        ax_f1.plot(np.arange(len(self.double_f1)), self.double_f1, color='#ffe5cc', label='DDQN_F1', linewidth='1', linestyle=':', marker='o')
         ax_loss.legend()
         # 轴名称，刻度值的颜色
-        # ax_cof.axis['left'].label.set_color(ax_cof.get_color())
+        ax_loss.axis['left'].label.set_color(ax_loss.get_color())
         ax_acc.axis['right'].label.set_color('red')
         ax_f1.axis['right2'].label.set_color('green')
 
@@ -416,8 +416,8 @@ class Collect:
         """
         plt.figure("Different Loss Compared In Current Maze")
         plt.title('Loss Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='black', label='DQN', linewidth='1', linestyle='-')
-        plt.plot(np.arange(len(self.double_loss)), self.double_loss, color='gold', label='DDQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.dqn_loss)), self.dqn_loss, color='#cb33ff', label='DQN', linewidth='1', linestyle='-')
+        plt.plot(np.arange(len(self.double_loss)), self.double_loss, color='#ff9933', label='DDQN', linewidth='1', linestyle='-')
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Loss', fontsize=10)
         plt.xlabel('Training times', fontsize=10)
@@ -501,8 +501,9 @@ class Collect:
         Different Loss Compared In Current Maze窗口，展示不同算法在同一环境中的loss曲线对比
         """
         if len(self.dqn_loss) or len(self.double_loss):
-            # self.loss_compared()            # 只显示loss曲线
-            self.loss_acc_compared()        # 只显示loss，accuracy曲线
+            self.loss_compared()            # 只显示loss曲线
+            # self.loss_acc_compared()        # 只显示loss，accuracy曲线
+            # self.loss_acc_f1_compared()     # 显示loss，accuracy，f1_score曲线
         else:
             print("no DQN or DoubleDQN run in current maze, so the window \"Different "
                   "Metrics Compared In Current Maze\" won't show!")

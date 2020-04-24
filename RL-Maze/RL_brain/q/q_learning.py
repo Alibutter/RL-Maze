@@ -16,7 +16,9 @@ class QL:
         self.env.QT = None                                                          # 将Env中的QT对象置空
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.params_clear('q')
-        self.env.QT = QTable(actions=list(range(self.env.n_actions)), e_greedy_increment=0.0005)
+        self.env.QT = QTable(actions=list(range(self.env.n_actions)),
+                             e_greedy_increment=0.00001
+                             )
         print("\n----------Reinforcement Learning with Q-Learning start:----------")
         self.update()
 
