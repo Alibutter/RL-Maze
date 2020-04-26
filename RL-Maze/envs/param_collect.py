@@ -466,9 +466,9 @@ class Collect:
                 or len(self.sl_step) > 0 or len(self.dqn_step) > 0 \
                 or len(self.double_step) > 0:
             plt.figure("Different Algorithm In Current Maze")
-            plt.subplot(1, 2, 1)
+            plt.subplot(2, 1, 1)
             self.steps_compared()   # 不同算法 步长对比
-            plt.subplot(1, 2, 2)
+            plt.subplot(2, 1, 2)
             self.scores_compared()  # 不同算法 得分对比
         else:
             print("no algorithm run in current maze, so the window \"Different Algorithm "
