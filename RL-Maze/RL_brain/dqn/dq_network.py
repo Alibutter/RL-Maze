@@ -3,7 +3,6 @@ import pandas as pd
 from tools.config import CellWeight
 from tensorflow.keras import backend as K
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.metrics import sparse_categorical_accuracy as sca
 
 
 class DeepQNetwork:
@@ -49,7 +48,7 @@ class DeepQNetwork:
         self.running_q = 0
 
         # 初始化置零的记忆库 [s, a, r, s_]
-        self.epsilon = 0. if self.params['e_greedy_increment'] is not None else self.params['e_greedy']
+        self.epsilon = 0.5 if self.params['e_greedy_increment'] is not None else self.params['e_greedy']
         self.memory = pd.DataFrame(np.zeros((self.params['memory_size'], self.params['n_features'] * 2 + 2)))
 
         self.eval_model = eval_model

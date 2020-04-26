@@ -1,3 +1,6 @@
+import tensorflow as tf
+
+
 # 游戏常量定义
 class Properties:
     MAZE_LEN = 9       # 迷宫矩阵边长（大于3的奇数）
@@ -8,13 +11,20 @@ class Properties:
     LINES_MAX = 5      # 保存曲线的最大记录数
 
 
+# 网络参数初始化
+class NetParam:
+    def __init__(self):
+        self.weights = tf.random_normal_initializer(0., 0.3)
+        self.bias = tf.constant_initializer(0.1)
+
+
 # 迷宫格类型定义
 class CellWeight:
     AGENT = -3         # 起点(智能体)
     ROAD = 0           # 路
     WALL = -5          # 墙
     TREASURE = 30      # 奖励
-    FINAL = 500        # 终点
+    FINAL = 50        # 终点
     STOP = -99         # 禁止通行(用于设置Q_Table地图边界位置处不可选择的方向action)
 
 
