@@ -25,6 +25,7 @@ class SarsaLambda:
     def update(self):
         button = self.env.find_button_by_name(Strings.S_LAMBDA)
         for episode in range(1000):
+            episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Sarsa(λ) has been stopped by being interrupted")
                 return
@@ -39,6 +40,7 @@ class SarsaLambda:
                     return
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
+                episode_reward += reward
 
                 # 在新状态下选择新的动作
                 action_ = self.env.QT.choose_action(self.env.reward_table, str(self.env.agent))  # 加动作集限制的动作决策
@@ -62,6 +64,7 @@ class SarsaLambda:
                           .format(episode + 1, step, terminal, score))
                     break
 
+            self.collections.add_reward('sl', episode, episode_reward)
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
 
         print("Sarsa(λ)-Learning has been normally finished")

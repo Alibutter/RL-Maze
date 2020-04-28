@@ -61,6 +61,7 @@ lines_max = Properties.LINES_MAX
             
     
 """
+episode_num = 1000
 
 
 class Collect:
@@ -102,12 +103,18 @@ class Collect:
         self.dqn_acc = []
         self.double_acc = []
 
-        # (6)选取的Q值曲线记录
-        self.q_q = []
-        self.s_q = []
-        self.sl_q = []
-        self.dqn_q = []
-        self.double_q = []
+        # (6)选取的reward值曲线记录
+        self.q_rewards = []
+        self.s_rewards = []
+        self.sl_rewards = []
+        self.dqn_rewards = []
+        self.double_rewards = []
+        # average_reward曲线记录
+        self.q_avg_reward = []
+        self.s_avg_reward = []
+        self.sl_avg_reward = []
+        self.dqn_avg_reward = []
+        self.double_avg_reward = []
 
         # (7)f1_score曲线记录
         self.dqn_f1 = []
@@ -136,22 +143,38 @@ class Collect:
             self.double_step.append(step)
             self.double_score.append(score)
 
-    def add_q(self, name, q):
+    def add_reward(self, name, episode, reward):
         """
         保存算法最新执行的reward曲线
+        :param episode:
         :param name:
-        :param q:
+        :param reward:
         """
         if name is 'q':
-            self.q_q.append(q)
+            self.q_rewards.append(reward)
+            rewards = np.array(self.q_rewards)
+            last_100_avg = rewards[max(0, episode-100):episode+1].mean()
+            self.q_avg_reward.append(last_100_avg)
         elif name is 's':
-            self.s_q.append(q)
+            self.s_rewards.append(reward)
+            rewards = np.array(self.s_rewards)
+            last_100_avg = rewards[max(0, episode - 100):episode + 1].mean()
+            self.s_avg_reward.append(last_100_avg)
         elif name is 'sl':
-            self.sl_q.append(q)
+            self.sl_rewards.append(reward)
+            rewards = np.array(self.sl_rewards)
+            last_100_avg = rewards[max(0, episode - 100):episode + 1].mean()
+            self.sl_avg_reward.append(last_100_avg)
         elif name is 'dqn':
-            self.dqn_q.append(q)
+            self.dqn_rewards.append(reward)
+            rewards = np.array(self.dqn_rewards)
+            last_100_avg = rewards[max(0, episode - 100):episode + 1].mean()
+            self.dqn_avg_reward.append(last_100_avg)
         elif name is 'double':
-            self.double_q.append(q)
+            self.double_rewards.append(reward)
+            rewards = np.array(self.double_rewards)
+            last_100_avg = rewards[max(0, episode - 100):episode + 1].mean()
+            self.double_avg_reward.append(last_100_avg)
 
     def add_loss(self, name, loss, accuracy, f1=None):
         """
@@ -178,21 +201,31 @@ class Collect:
         if name is 'q':
             self.q_step = []
             self.q_score = []
+            self.q_rewards = []
+            self.q_avg_reward = []
         elif name is 's':
             self.s_step = []
             self.s_score = []
+            self.s_rewards = []
+            self.s_avg_reward = []
         elif name is 'sl':
             self.sl_step = []
             self.sl_score = []
+            self.sl_rewards = []
+            self.sl_avg_reward = []
         elif name is 'dqn':
             self.dqn_step = []
             self.dqn_score = []
+            self.dqn_rewards = []
+            self.dqn_avg_reward = []
             if self.adjust_params and self.dqn_loss:
                 self.store_loss_his(name)  # 此处仅用于在某个迷宫环境为DQN调参，正常状态下无效
             self.loss_clear(name)
         elif name is 'double':
             self.double_step = []
             self.double_score = []
+            self.double_rewards = []
+            self.double_avg_reward = []
             if self.adjust_params and self.double_loss:
                 self.store_loss_his(name)  # 此处仅用于在某个迷宫环境为DoubleDQN调参，正常状态下无效
             self.loss_clear(name)
@@ -422,38 +455,43 @@ class Collect:
         plt.ylabel('Loss', fontsize=10)
         plt.xlabel('Training times', fontsize=10)
 
-    def traditional_q_compared(self):
+    def traditional_reward_compared(self):
         """
         传统强化学习算法的reward曲线对比
         """
-        plt.title('Q Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_q)), self.q_q, color='green', label='QLearn', linewidth='1.2')
-        plt.plot(np.arange(len(self.s_q)), self.s_q, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_q)), self.sl_q, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.title('Reward Analysis', fontsize=10)
+        plt.plot(np.arange(len(self.q_rewards)), self.q_rewards, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_rewards)), self.s_rewards, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_rewards)), self.sl_rewards, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
         plt.legend()  # 显示图例说明Label标签
-        plt.ylabel('Q values', fontsize=10)
-        plt.xlabel('Action choose times', fontsize=10)
+        plt.ylabel('Reward values', fontsize=10)
+        plt.xlabel('Episode times', fontsize=10)
 
-    def dqn_q_compared(self):
+    def different_reward_compared(self):
         """
         DQN与DoubleDQN算法的reward曲线对比
         """
-        plt.title('Q Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.dqn_q)), self.dqn_q, color='#cb33ff', label='DQN', linewidth='1.2',
+        plt.title('Reward Analysis', fontsize=10)
+        plt.plot(np.arange(len(self.q_rewards)), self.q_rewards, color='green', label='QLearn', linewidth='1.2')
+        plt.plot(np.arange(len(self.s_rewards)), self.s_rewards, color='red', label='Sarsa', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_rewards)), self.sl_rewards, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.dqn_rewards)), self.dqn_rewards, color='#cb33ff', label='DQN', linewidth='1.2',
                  linestyle='-')
-        plt.plot(np.arange(len(self.double_q)), self.double_q, color='#ff9933', label='DDQN', linewidth='1.2')
+        plt.plot(np.arange(len(self.double_rewards)), self.double_rewards, color='#ff9933', label='DDQN', linewidth='1.2')
         # plt.ylim(-1, 700)
         plt.legend()  # 显示图例说明Label标签
-        plt.ylabel('Q values', fontsize=10)
-        plt.xlabel('Action choose times', fontsize=10)
+        plt.ylabel('Average Rewards', fontsize=10)
+        plt.xlabel('Episode times', fontsize=10)
 
-    def figure_different_q_compared(self):
+    def figure_different_reward_compared(self):
         """
         显示不同算法的reward曲线对比
         """
-        if len(self.dqn_q) > 0 or len(self.double_q) > 0:
+        if len(self.dqn_rewards) > 0 or len(self.double_rewards) > 0 \
+                or len(self.q_rewards) > 0 or len(self.s_rewards) > 0 \
+                or len(self.sl_rewards) > 0:
             plt.figure("Different Rewards In Current Maze")
-            self.dqn_q_compared()               # DQN与DoubleDQN算法Q值曲线对比
+            self.different_reward_compared()               # DQN与DoubleDQN算法Q值曲线对比
         else:
             print("no DQN or DoubleDQN run in current maze, so the window \"Different Rewards "
                   "In Current Maze\" won't show!")
@@ -548,6 +586,7 @@ class Collect:
             self.figure_self_scores_compared()                  # 同一算法在不同迷宫环境的得分曲线对比
             self.figure_different_loss_compared()               # DQN与DoubleDQN在当前环境中的loss曲线对比
             self.figure_self_loss_compared()                    # DQN与DoubleDQN在不同环境中的loss曲线自我对比
+            # self.figure_different_reward_compared()
         plt.show()
 
 

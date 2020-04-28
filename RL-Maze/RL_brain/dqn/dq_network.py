@@ -138,14 +138,6 @@ class DeepQNetwork:
         # print('action list : %s  choose : %s  random :%s' % (list(columns), random_i, random))
         return random_i
 
-    def collection_input_q(self, q_target):
-        if self.collections:
-            # self.running_q = self.running_q * 0.99 + 0.01 * max_q
-            if self.double_q:
-                self.collections.add_q('double', q_target)
-            else:
-                self.collections.add_q('dqn', q_target)
-
     def choose_action(self, reward_table, state):
         """
         在当前状态下按照边界动作约束选择动作（提高效率）

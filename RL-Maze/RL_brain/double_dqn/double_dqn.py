@@ -46,6 +46,7 @@ class DoubleDQN:
         button = self.env.find_button_by_name(Strings.Double_DQN)
         step_sum = 0                                                                # 记录智能体移动步数之和
         for episode in range(1000):
+            episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("DoubleDQN-Learning has been stopped by being interrupted")
                 return
@@ -58,7 +59,10 @@ class DoubleDQN:
                 # action = self.env.QT.choose_action_unlimited(np.array(self.env.agent))    # 不加动作集限制的动作决策
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
-                reward /= 50
+
+                episode_reward += reward
+                # reward /= 50
+
                 self.env.QT.store_transition(self.env.back_agent, action, reward, self.env.agent)     # 添加到经验池
 
                 # self.env.QT.learn()
@@ -79,5 +83,6 @@ class DoubleDQN:
                     break
 
                 step_sum += 1
+            self.collections.add_reward('double', episode, episode_reward)
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
         print("DoubleDQN-Learning has been normally finished")

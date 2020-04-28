@@ -25,6 +25,7 @@ class QL:
     def update(self):
         button = self.env.find_button_by_name(Strings.Q_LEARN)
         for episode in range(1000):
+            episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Q-Learning has been stopped by being interrupted")
                 return
@@ -41,6 +42,7 @@ class QL:
                 # action = self.env.QT.choose_action_unlimited(str(self.env.agent))   # 不加动作集限制的动作决策
 
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
+                episode_reward += reward
 
                 self.env.QT.q_learn(str(self.env.back_agent), action, reward, str(observation_))    # 强化学习更新Q表
 
@@ -57,6 +59,7 @@ class QL:
                           .format(episode + 1, step, terminal, score))
                     break
 
+            self.collections.add_reward('q', episode, episode_reward)
             self.env.agent_restart()                                                # 智能体复位，准备下一次学习过程
 
         print("Q-Learning has been normally finished")
