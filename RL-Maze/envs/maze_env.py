@@ -1,5 +1,6 @@
 import sys
 import copy
+import math
 import pandas as pd
 import numpy as np
 from pygame.locals import QUIT
@@ -342,13 +343,8 @@ class MazeEnv:
         :return: 总分数
         """
         if self.agent == self.end:
-            reward = CellWeight.FINAL
+            reward = CellWeight.FINAL/10
         else:
-            reward = CellWeight.WALL
-        x = -1 * (self.step - 1) + reward
-        y_min = -100
-        y_max = 100
-        x_min = -CellWeight.FINAL*50
-        x_max = CellWeight.FINAL
-        score = y_min + (y_max - y_min) / (x_max - x_min) * (x - x_min)
-        return int(score*100)/100
+            reward = CellWeight.WALL/10
+        score = math.log(self.step - 1, 2) * -1 + reward
+        return score
