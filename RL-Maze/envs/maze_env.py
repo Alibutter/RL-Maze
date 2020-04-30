@@ -17,8 +17,10 @@ class MazeEnv:
         self.n_features = 2
         self.QT = None                                          # 用于强化学习的Q_Table表
         self.refresh = False                                    # 刷新地图标志位
-        self.map, self.begin, self.end = maze_creator(Properties.MAZE_LEN, Properties.MAZE_LEN, Properties.TREASURE_NUM,
-                                                      Properties.TREASURE_PATE)    # 迷宫初始化
+        self.map, self.begin, self.end, self.map_name = maze_creator(Properties.MAZE_LEN,
+                                                                     Properties.MAZE_LEN,
+                                                                     Properties.TREASURE_NUM,
+                                                                     Properties.TREASURE_PATE)    # 迷宫初始化
         self.step = 0                                           # 记录智能体移动步长
         self.agent = copy.deepcopy(self.begin)                  # 标记智能体位置
         self.back_agent = copy.deepcopy(self.agent)             # 标记智能体移动前的位置，用于移动后恢复之前的单元
@@ -30,7 +32,9 @@ class MazeEnv:
         self.clock = self.py.time.Clock()
         self.button_font = self.py.font.SysFont(Font.ENG, 18, bold=True)         # 设置按钮文本字体
         self.screen = screen
-        self.collections = collections                          # 是否收集数据，是则需要刷新地图时清空collections
+        if collections:
+            self.collections = collections                      # 是否收集数据，是则需要刷新地图时清空collections
+            self.collections.set_map(self.map_name)             # 锁定迷宫名称
         self._load_img()                                        # 加载按钮图片
         self.buttons = list()                                   # 按钮集合
         self.net_param = NetParam()                             # 神经网络参数初始化，保证DQN与DoubleDQN算法参数一致性
@@ -214,9 +218,13 @@ class MazeEnv:
         if self.refresh:                                                    # 检查刷新标志位，是否需要刷新
             self.refresh = False
             self.QT = None
+            self.map, self.begin, self.end, self.map_name = maze_creator(Properties.MAZE_LEN,
+                                                                         Properties.MAZE_LEN,
+                                                                         Properties.TREASURE_NUM,
+                                                                         Properties.TREASURE_PATE)
             if self.collections:
                 self.collections.scores_compared_clear()                    # 清空collections收集的旧数据
-            self.map, self.begin, self.end = maze_creator(Properties.MAZE_LEN, Properties.MAZE_LEN, Properties.TREASURE_NUM, Properties.TREASURE_PATE)
+                self.collections.set_map(self.map_name)                     # 锁定迷宫名称
             self.step = 0                                                   # 智能体步长归零
             self.agent = copy.deepcopy(self.begin)                          # 恢复智能体初始位置为迷宫起点
             self.back_agent = copy.deepcopy(self.agent)

@@ -1,6 +1,7 @@
 from random import choice, randint
 from tools.config import CellWeight, Direction
 import numpy
+import time
 
 
 # 迷宫地图类
@@ -236,10 +237,11 @@ def maze_creator(width, height, amount=None, probability=None):
     begin, end = set_begin_end(maze)            # 设起点终点
     print('Maze map:')
     maze.print()                                # 打印迷宫矩阵
-
+    now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+    map_name = 'map' + now
     # 选择测试的固定迷宫
     # maze.maze = m9906
-    return maze, begin, end
+    return maze, begin, end, map_name
 
 
 # ROAD 奖励值为0时，可用于5x5规模测试的固定迷宫
