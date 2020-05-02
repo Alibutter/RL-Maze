@@ -30,17 +30,17 @@ lines_max = Properties.LINES_MAX
     （3）算法效果纵向对比：（不同迷宫 相同算法）
         每当刷新迷宫时，都将保存在上一迷宫环境中每个执行过的算法所
         得的得分曲线（不保存步长曲线）。由于是同一算法在不同迷宫环
-        境的执行效果对比，所以只有至少一个算法在两种及以上迷宫环境
-        中均有执行，才会显示包含各个算法分别在不同环境中得分曲线的
-        得分曲线自身对比图，某算法的“In His_maze”窗口，否则该窗口
-        不会显示
+        境的执行效果对比，所以只有至少一个算法在历史迷宫环境中曾经
+        有过执行，才会显示包含各个算法分别在不同环境中得分曲线的得
+        分曲线自身对比图，某算法的“In His_maze”窗口，否则该窗口不
+        会显示
         
     （4）Loss曲线纵向对比：
         [A].正常模式：（不同迷宫 相同算法）
             每当刷新迷宫时，都将保存在上一迷宫环境中DQN或DoubleDQN执
             行过后所得loss曲线。由于是同一算法在不同迷宫环境的loss曲
-            线对比，所以只有两者中至少一个算法在两种及以上迷宫环境中均
-            有执行，才会显示包含各个算法在不同迷宫环境的loss曲线自身对
+            线对比，所以只有两者中至少一个算法在历史迷宫环境中曾经有
+            过执行，才会显示包含各个算法在不同迷宫环境的loss曲线自身对
             比图“Self Loss Compared In His_maze”窗口，否则该窗口不
             显示
         [B].调参模式：（相同迷宫 相同算法）
@@ -535,7 +535,7 @@ class Collect:
         """
         Same Algorithm In His_maze窗口，展示各个算法在不同环境中执行效果的自我对比
         """
-        if len(self.q_line_his) > 1:
+        if len(self.q_line_his) > 0:
             # plt.figure("Same Algorithm In His_maze")
             # plt.subplot(2, 3, 1)
             plt.figure("QLearn Scores In His_maze")
@@ -543,31 +543,31 @@ class Collect:
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/q_learn/'+now+'.png')
             # plt.subplot(2, 3, 2)
-        if len(self.s_line_his) > 1:
+        if len(self.s_line_his) > 0:
             plt.figure("Sarsa Scores In His_maze")
             algorithm_analysis('Sarsa Analysis', self.s_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/sarsa/'+now+'.png')
             # plt.subplot(2, 3, 3)
-        if len(self.sl_line_his) > 1:
+        if len(self.sl_line_his) > 0:
             plt.figure("Sarsa(λ) Scores In His_maze")
             algorithm_analysis('Sarsa(λ) Analysis', self.sl_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/sarsa_lambda/'+now+'.png')
             # plt.subplot(2, 3, 4)
-        if len(self.dqn_line_his) > 1:
+        if len(self.dqn_line_his) > 0:
             plt.figure("DQN Scores In His_maze")
             algorithm_analysis('DQN Analysis', self.dqn_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/dqn/'+now+'.png')
             # plt.subplot(2, 3, 5)
-        if len(self.double_line_his) > 1:
+        if len(self.double_line_his) > 0:
             plt.figure("DoubleDQN Scores In His_maze")
             algorithm_analysis('DoubleDQN Analysis', self.double_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/double_dqn/'+now+'.png')
         else:
-            print("no same algorithm stored at least two lines in different mazes, so the window \"Same "
+            print("no same algorithm stored his_lines in different mazes, so the window \"Same "
                   "Algorithm In His_maze\" won't show!")
 
     def figure_different_loss_compared(self):
@@ -595,12 +595,12 @@ class Collect:
         if self.adjust_params:
             num = 0
             figure_title = "Self Loss Compared In Current Maze For Adjusting Params"
-            warning = "no DQN or DoubleDQN stored at least two lines, so the window \"Self " \
+            warning = "no DQN or DoubleDQN stored his_lines, so the window \"Self " \
                       "Loss Compared In Current Maze For Adjusting Params\" for adjusting params won't show!"
         else:
-            num = 1
+            num = 0
             figure_title = "Self Loss Compared In His_maze"
-            warning = "no DQN or DoubleDQN stored at least two lines in different mazes, so the window \"Self " \
+            warning = "no DQN or DoubleDQN stored his_lines in different mazes, so the window \"Self " \
                       "Loss Compared In His_maze\" won't show!"
         if len(self.dqn_loss_line_his) > num or len(self.double_loss_line_his) > num:
             plt.figure(figure_title)
@@ -618,6 +618,7 @@ class Collect:
         显示算法分析图表
         """
         self.env.agent_restart()
+        self.env.update_map()
         self.py.image.save(self.screen, './data_analysis/map/'+self.map_name+'.png')
         if self.adjust_params:
             # self.figure_different_scores_steps_compared()       # 不同算法的步长与得分曲线对比

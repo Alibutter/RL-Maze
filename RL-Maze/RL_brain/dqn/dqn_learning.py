@@ -45,7 +45,7 @@ class DQN:
     def update(self):
         button = self.env.find_button_by_name(Strings.DQN)
         step_sum = 0                                                                # 记录智能体移动步数之和
-        for episode in range(500):
+        for episode in range(200):
             episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("DQN-Learning has been stopped by being interrupted")
