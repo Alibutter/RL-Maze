@@ -1,6 +1,3 @@
-import tensorflow as tf
-
-
 # 游戏常量定义
 class Properties:
     MAZE_LEN = 9       # 迷宫矩阵边长（大于3的奇数）
@@ -9,13 +6,6 @@ class Properties:
     TREASURE_PATE = 0   # 奖励单元在全图出现概率
     STEPS = 99999       # 智能体探索一次最大移动次数
     LINES_MAX = 5      # 保存曲线的最大记录数
-
-
-# 网络参数初始化
-class NetParam:
-    def __init__(self):
-        self.weights = tf.random_normal_initializer(0., 0.3)
-        self.bias = tf.constant_initializer(0.01)
 
 
 # 迷宫格类型定义

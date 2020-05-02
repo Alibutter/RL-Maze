@@ -603,7 +603,7 @@ class Collect:
             warning = "no DQN or DoubleDQN stored his_lines in different mazes, so the window \"Self " \
                       "Loss Compared In His_maze\" won't show!"
         if len(self.dqn_loss_line_his) > num or len(self.double_loss_line_his) > num:
-            plt.figure(figure_title)
+            plt.figure(figure_title, figsize=(6, 4))
             plt.subplot(1, 2, 1)
             algorithm_analysis('DQN Loss Analysis', self.dqn_loss_line_his, loss=True)
             plt.subplot(1, 2, 2)

@@ -37,7 +37,6 @@ class MazeEnv:
             self.collections.set_map(self.map_name)             # 锁定迷宫名称
         self._load_img()                                        # 加载按钮图片
         self.buttons = list()                                   # 按钮集合
-        self.net_param = NetParam()                             # 神经网络参数初始化，保证DQN与DoubleDQN算法参数一致性
         # print('Init reward_table:')
         # print(self.reward_table)                                # 打印reward_table表
 
@@ -235,7 +234,6 @@ class MazeEnv:
             self.weight_table[1][0] = CellWeight.ROAD
             self.reward_table = pd.DataFrame(columns=[], dtype=np.float64)  # 动作奖励值表
             self._init_reward_table()                                       # 更新reward_table表
-            self.net_param = NetParam()                                     # 重新初始化网络参数
 
         self.screen.fill(Color.BLUE)                                    # 填充背景色
         self.py.draw.rect(self.screen, Color.WHITE, ((0, 0), (600, 30)))     # 绘制上方按钮矩形区域

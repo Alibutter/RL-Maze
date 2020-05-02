@@ -244,6 +244,7 @@ def maze_creator(width, height, amount=None, probability=None):
     return maze, begin, end, map_name
 
 
+# 以下仅用于测试使用的固定迷宫，不使用时将生成一个随机迷宫
 # ROAD 奖励值为0时，可用于5x5规模测试的固定迷宫
 m5501 = [[-5, -5, -5, -5, -5],
         [-3, 0, 0, 0, -5],

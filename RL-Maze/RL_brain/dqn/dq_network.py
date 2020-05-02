@@ -47,14 +47,14 @@ class DeepQNetwork:
         self.learn_step_counter = 0                 # 记录总的学习次数，即learn方法执行次数
 
         # 初始化置零的记忆库 [s, a, r, s_]
-        self.epsilon = 0. if self.params['e_greedy_increment'] is not None else self.params['e_greedy']
+        self.epsilon = 0.75 if self.params['e_greedy_increment'] is not None else self.params['e_greedy']
         self.memory = pd.DataFrame(np.zeros((self.params['memory_size'], self.params['n_features'] * 2 + 2)))
 
         self.eval_model = eval_model
         self.target_model = target_model
 
-        # for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
-        #     target_layer.set_weights(eval_layer.get_weights())
+        for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
+            target_layer.set_weights(eval_layer.get_weights())
 
         self.double_q = double_q
         self.eval_model.compile(
@@ -221,7 +221,7 @@ class DeepQNetwork:
         # 然后训练eval_model网络,获得误差和准确率
         training_x = batch_memory.iloc[:, :self.params['n_features']]
         [loss, accuracy] = self.eval_model.train_on_batch(training_x, q_target)
-        print('| Train on %s times | loss:%s, accuracy:%s' % (self.learn_step_counter, loss, accuracy))
+        # print('| Train on %s times | loss:%s, accuracy:%s' % (self.learn_step_counter, loss, accuracy))
         # loss, accuracy, mae = None, None, None
         # self.eval_model.fit(training_x, q_target, batch_size=32, epochs=10, verbose=1)
 
