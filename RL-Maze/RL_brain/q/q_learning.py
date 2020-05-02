@@ -17,14 +17,14 @@ class QL:
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.params_clear('q')
         self.env.QT = QTable(actions=list(range(self.env.n_actions)),
-                             e_greedy_increment=0.00001
+                             # e_greedy_increment=0.00001
                              )
         print("\n----------Reinforcement Learning with Q-Learning start:----------")
         self.update()
 
     def update(self):
         button = self.env.find_button_by_name(Strings.Q_LEARN)
-        for episode in range(1000):
+        for episode in range(500):
             episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Q-Learning has been stopped by being interrupted")

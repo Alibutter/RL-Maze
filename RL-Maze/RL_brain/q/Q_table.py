@@ -92,8 +92,7 @@ class QTable:
         self.check_state_exist(s_)
         # 更新Q-table表
         self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, :].max() - self.q_table.loc[s, a])
-        if self.epsilon_increment:
-            self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
+        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
 
     def sarsa_learn(self, s, a, r, s_, a_):
         """
@@ -107,5 +106,4 @@ class QTable:
         self.check_state_exist(s_)
         # 更新Q-table表
         self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a])
-        if self.epsilon_increment:
-            self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
+        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy

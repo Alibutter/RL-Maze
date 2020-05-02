@@ -8,10 +8,10 @@ from tensorflow.keras.optimizers import RMSprop
 class DeepQNetwork:
     def __init__(self, n_actions, n_features, eval_model, target_model,
                  double_q=False,
-                 learning_rate=0.01,
+                 learning_rate=0.001,
                  reward_decay=0.9,
                  e_greedy=0.9,
-                 replace_target_iter=30,
+                 replace_target_iter=200,
                  memory_size=2000,
                  batch_size=32,
                  e_greedy_increment=None,
@@ -45,10 +45,9 @@ class DeepQNetwork:
         }
         self.collections = param_collect            # 是否收集数据
         self.learn_step_counter = 0                 # 记录总的学习次数，即learn方法执行次数
-        self.running_q = 0
 
         # 初始化置零的记忆库 [s, a, r, s_]
-        self.epsilon = 0.5 if self.params['e_greedy_increment'] is not None else self.params['e_greedy']
+        self.epsilon = 0. if self.params['e_greedy_increment'] is not None else self.params['e_greedy']
         self.memory = pd.DataFrame(np.zeros((self.params['memory_size'], self.params['n_features'] * 2 + 2)))
 
         self.eval_model = eval_model
@@ -133,7 +132,6 @@ class DeepQNetwork:
         else:                                                                       # 检索转置的Q估计值表，在合法动作集中选取最大Q值的动作
             # 记录最大Q值
             maxnum = av[str(state)].loc[columns].max()
-            # self.collection_input_q(maxnum)
             random_i = np.random.choice(av.loc[av[str(state)] == maxnum, :].index)  # 如果存在多个最大值动作，则随机选择其一
         # print('action list : %s  choose : %s  random :%s' % (list(columns), random_i, random))
         return random_i
@@ -235,9 +233,8 @@ class DeepQNetwork:
                 self.collections.add_loss('dqn', loss, accuracy)
 
         # 动态增长epsilon
-        if self.params['e_greedy_increment']:
-            self.epsilon = self.epsilon + self.params['e_greedy_increment'] if self.epsilon < self.params['e_greedy'] \
-                else self.params['e_greedy']
+        self.epsilon = self.epsilon + self.params['e_greedy_increment'] \
+            if self.epsilon < self.params['e_greedy'] else self.params['e_greedy']
         self.learn_step_counter += 1                                    # 学习次数自增一
 
 

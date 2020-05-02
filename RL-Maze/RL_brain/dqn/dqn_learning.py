@@ -32,9 +32,9 @@ class DQN:
                                    reward_decay=0.9,
                                    e_greedy=0.9,
                                    replace_target_iter=200,
-                                   memory_size=2000,
+                                   memory_size=4000,
                                    batch_size=32,
-                                   e_greedy_increment=0.0001,                      # 是否按照指定增长率 动态设置增长epsilon
+                                   # e_greedy_increment=0.0001,                      # 是否按照指定增长率 动态设置增长epsilon
                                    param_collect=self.collections
                                    )
         print("\n----------Reinforcement Learning with DQN-Learning start:----------")
@@ -45,7 +45,7 @@ class DQN:
     def update(self):
         button = self.env.find_button_by_name(Strings.DQN)
         step_sum = 0                                                                # 记录智能体移动步数之和
-        for episode in range(10000):
+        for episode in range(500):
             episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("DQN-Learning has been stopped by being interrupted")
@@ -63,12 +63,12 @@ class DQN:
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
 
                 episode_reward += reward
-                # reward /= 50
+                reward /= 50
 
                 self.env.QT.store_transition(self.env.back_agent, action, reward, self.env.agent)     # 添加到经验池
 
                 # self.env.QT.learn(observation_)
-                if step_sum >= 200 and step_sum % 10 == 0:
+                if step_sum > 200 and step_sum % 10 == 0:
                     self.env.QT.learn(observation_, self.env.reward_table)
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束

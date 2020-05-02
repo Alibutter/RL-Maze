@@ -34,8 +34,7 @@ class STable:
         self.q_table += self.alpha * p * self.e_table
         self.e_table *= self.gamma * self.lambda_           # 随着时间衰减 eligibility trace 的值, 离获取 reward 越远的步, 他的"不可或缺性"越小
 
-        if self.epsilon_increment:
-            self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
+        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
 
     def choose_action_unlimited(self, observation):
         """

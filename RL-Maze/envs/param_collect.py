@@ -560,7 +560,7 @@ class Collect:
             self.loss_compared()            # 只显示loss曲线
             # self.loss_acc_compared()        # 只显示loss，accuracy曲线
             # self.loss_acc_f1_compared()     # 显示loss，accuracy，f1_score曲线
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/dif_loss/'+self.map_name+'-'+now+'.png')
         else:
             print("no DQN or DoubleDQN run in current maze, so the window \"Different "
