@@ -69,6 +69,7 @@ class Collect:
     def __init__(self, py, screen, adjust_params=False):
         self.py = py                        # 当前pygame
         self.screen = screen                # 当前屏幕界面
+        self.env = None
         self.map_name = None                # 记录迷宫名称
         self.adjust_params = adjust_params  # 是否为调参状态
         # (1)得分与步长
@@ -123,6 +124,9 @@ class Collect:
         # (7)f1_score曲线记录
         self.dqn_f1 = []
         self.double_f1 = []
+
+    def set_env(self, env):
+        self.env = env
 
     def set_map(self, name):
         """
@@ -260,35 +264,45 @@ class Collect:
         """
         if name is 'q':                             # 保存QLearn的得分历史曲线
             if len(self.q_line_his) < lines_max:
-                self.q_line_his.append(self.q_score)
+                self.q_line_his.append({'map': self.map_name,
+                                        'line': self.q_score})
             else:
                 self.q_line_his.pop(0)
-                self.q_line_his.append(self.q_score)
+                self.q_line_his.append({'map': self.map_name,
+                                        'line': self.q_score})
 
         elif name is 's':                           # 保存Sarsa的得分历史曲线
             if len(self.s_line_his) < lines_max:
-                self.s_line_his.append(self.s_score)
+                self.s_line_his.append({'map': self.map_name,
+                                        'line': self.s_score})
             else:
                 self.s_line_his.pop(0)
-                self.s_line_his.append(self.s_score)
+                self.s_line_his.append({'map': self.map_name,
+                                        'line': self.s_score})
         elif name is 'sl':                          # 保存Sarsa(λ)的得分历史曲线
             if len(self.sl_line_his) < lines_max:
-                self.sl_line_his.append(self.sl_score)
+                self.sl_line_his.append({'map': self.map_name,
+                                        'line': self.sl_score})
             else:
                 self.sl_line_his.pop(0)
-                self.sl_line_his.append(self.sl_score)
+                self.sl_line_his.append({'map': self.map_name,
+                                        'line': self.sl_score})
         elif name is 'dqn':                         # 保存DQN的得分历史曲线
             if len(self.dqn_line_his) < lines_max:
-                self.dqn_line_his.append(self.dqn_score)
+                self.dqn_line_his.append({'map': self.map_name,
+                                         'line': self.dqn_score})
             else:
                 self.dqn_line_his.pop(0)
-                self.dqn_line_his.append(self.dqn_score)
+                self.dqn_line_his.append({'map': self.map_name,
+                                         'line': self.dqn_score})
         elif name is 'double':                      # 保存DoubleDQN的得分历史曲线
             if len(self.double_line_his) < lines_max:
-                self.double_line_his.append(self.double_score)
+                self.double_line_his.append({'map': self.map_name,
+                                            'line': self.double_score})
             else:
                 self.double_line_his.pop(0)
-                self.double_line_his.append(self.double_score)
+                self.double_line_his.append({'map': self.map_name,
+                                            'line': self.double_score})
 
     def store_loss_his(self, name):
         """
@@ -297,16 +311,20 @@ class Collect:
         """
         if name is 'dqn':                           # 保存旧的DQN算法loss曲线历史
             if len(self.dqn_loss_line_his) < lines_max:
-                self.dqn_loss_line_his.append(self.dqn_loss)
+                self.dqn_loss_line_his.append({'map': self.map_name,
+                                              'line': self.dqn_loss})
             else:
                 self.dqn_loss_line_his.pop(0)
-                self.dqn_loss_line_his.append(self.dqn_loss)
+                self.dqn_loss_line_his.append({'map': self.map_name,
+                                              'line': self.dqn_loss})
         elif name is 'double':                      # 保存旧的DoubleDQN算法loss曲线历史
             if len(self.double_loss_line_his) < lines_max:
-                self.double_loss_line_his.append(self.double_loss)
+                self.double_loss_line_his.append({'map': self.map_name,
+                                                 'line': self.double_loss})
             else:
                 self.double_loss_line_his.pop(0)
-                self.double_loss_line_his.append(self.double_loss)
+                self.double_loss_line_his.append({'map': self.map_name,
+                                                 'line': self.double_loss})
 
     def store_all_lines(self):
         """
@@ -522,32 +540,32 @@ class Collect:
             # plt.subplot(2, 3, 1)
             plt.figure("QLearn Scores In His_maze")
             algorithm_analysis('QLearn Analysis', self.q_line_his)
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-            plt.savefig('./data_analysis/self_scores/q_learn/'+self.map_name+'-'+now+'.png')
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+            plt.savefig('./data_analysis/self_scores/q_learn/'+now+'.png')
             # plt.subplot(2, 3, 2)
         if len(self.s_line_his) > 1:
             plt.figure("Sarsa Scores In His_maze")
             algorithm_analysis('Sarsa Analysis', self.s_line_his)
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-            plt.savefig('./data_analysis/self_scores/sarsa/'+self.map_name+'-' + now+'.png')
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+            plt.savefig('./data_analysis/self_scores/sarsa/'+now+'.png')
             # plt.subplot(2, 3, 3)
         if len(self.sl_line_his) > 1:
             plt.figure("Sarsa(λ) Scores In His_maze")
             algorithm_analysis('Sarsa(λ) Analysis', self.sl_line_his)
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-            plt.savefig('./data_analysis/self_scores/sarsa_lambda/'+self.map_name+'-'+now+'.png')
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+            plt.savefig('./data_analysis/self_scores/sarsa_lambda/'+now+'.png')
             # plt.subplot(2, 3, 4)
         if len(self.dqn_line_his) > 1:
             plt.figure("DQN Scores In His_maze")
             algorithm_analysis('DQN Analysis', self.dqn_line_his)
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-            plt.savefig('./data_analysis/self_scores/dqn/'+self.map_name+'-'+now+'.png')
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+            plt.savefig('./data_analysis/self_scores/dqn/'+now+'.png')
             # plt.subplot(2, 3, 5)
         if len(self.double_line_his) > 1:
             plt.figure("DoubleDQN Scores In His_maze")
             algorithm_analysis('DoubleDQN Analysis', self.double_line_his)
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-            plt.savefig('./data_analysis/self_scores/double_dqn/'+self.map_name+'-'+now+'.png')
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+            plt.savefig('./data_analysis/self_scores/double_dqn/'+now+'.png')
         else:
             print("no same algorithm stored at least two lines in different mazes, so the window \"Same "
                   "Algorithm In His_maze\" won't show!")
@@ -590,8 +608,8 @@ class Collect:
             algorithm_analysis('DQN Loss Analysis', self.dqn_loss_line_his, loss=True)
             plt.subplot(1, 2, 2)
             algorithm_analysis('DoubleDQN Loss Analysis', self.double_loss_line_his, loss=True)
-            now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-            plt.savefig('./data_analysis/self_loss/'+self.map_name+'-'+now+'.png')
+            now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+            plt.savefig('./data_analysis/self_loss/'+now+'.png')
         else:
             print(warning)
 
@@ -599,6 +617,7 @@ class Collect:
         """
         显示算法分析图表
         """
+        self.env.agent_restart()
         self.py.image.save(self.screen, './data_analysis/map/'+self.map_name+'.png')
         if self.adjust_params:
             # self.figure_different_scores_steps_compared()       # 不同算法的步长与得分曲线对比
@@ -625,17 +644,15 @@ def algorithm_analysis(title, line_his, loss=False):
     """
     # 检查曲线历史记录是否为空
     if loss:
-        line_label = 'loss'
         y_label = 'Loss'
         x_label = 'Training times'
     else:
-        line_label = 'map'
         y_label = 'Scores'
         x_label = 'Episode times'
     if len(line_his):
         i = 0
         for q in line_his:
-            plt.plot(np.arange(len(q)), q, color=color[i], label=line_label + str(i), linewidth='1')
+            plt.plot(np.arange(len(q['line'])), q['line'], color=color[i], label=str(q['map']), linewidth='1')
             i += 1
         plt.legend()                                # 显示图例说明Label标签
     plt.title(title, fontsize=10)

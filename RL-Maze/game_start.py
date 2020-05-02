@@ -58,6 +58,7 @@ class GameInit:
         # collections = None                              # 不显示算法分析曲线图模式
 
         env = MazeEnv(self.py, self.screen, collections)
+        env.set_collections_env(env)
         ql = QL(env, collections)
         sarsa = Sarsa(env, collections)
         sarsa_lambda = SarsaLambda(env, collections)

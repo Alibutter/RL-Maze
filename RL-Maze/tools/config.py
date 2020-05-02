@@ -15,7 +15,7 @@ class Properties:
 class NetParam:
     def __init__(self):
         self.weights = tf.random_normal_initializer(0., 0.3)
-        self.bias = tf.constant_initializer(0.1)
+        self.bias = tf.constant_initializer(0.01)
 
 
 # 迷宫格类型定义

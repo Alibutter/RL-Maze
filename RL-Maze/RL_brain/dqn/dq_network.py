@@ -212,18 +212,18 @@ class DeepQNetwork:
             # yj=Rj+gamma*maxQ'(sj',aj',w')
             q_target[batch_index, eval_act_index] = reward + self.params['reward_decay'] * selected_q_next
 
+        # 检查是否需要用eval_model的最新参数替换target_model网络中的旧参数(w,b)
+        if self.learn_step_counter % self.params['replace_target_iter'] == 0:
+            for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
+                target_layer.set_weights(eval_layer.get_weights())
+            print('Target_network params replaced by Eval_network')
+
         # 然后训练eval_model网络,获得误差和准确率
         training_x = batch_memory.iloc[:, :self.params['n_features']]
         [loss, accuracy] = self.eval_model.train_on_batch(training_x, q_target)
         print('| Train on %s times | loss:%s, accuracy:%s' % (self.learn_step_counter, loss, accuracy))
         # loss, accuracy, mae = None, None, None
         # self.eval_model.fit(training_x, q_target, batch_size=32, epochs=10, verbose=1)
-
-        # 检查是否需要用eval_model的最新参数替换target_model网络中的旧参数(w,b)
-        if self.learn_step_counter % self.params['replace_target_iter'] == 0:
-            for eval_layer, target_layer in zip(self.eval_model.layers, self.target_model.layers):
-                target_layer.set_weights(eval_layer.get_weights())
-            print('Target_network params replaced by Eval_network')
 
         # 记录数据
         if self.collections:

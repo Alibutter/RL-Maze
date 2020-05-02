@@ -28,7 +28,7 @@ class DQN:
         target_model = TargetModel(num_actions=self.env.n_actions, weights=self.weights, bias=self.bias)
         self.env.QT = DeepQNetwork(self.env.n_actions, self.env.n_features, eval_model, target_model,
                                    double_q=False,
-                                   learning_rate=0.001,
+                                   learning_rate=1e-5,
                                    reward_decay=0.9,
                                    e_greedy=0.9,
                                    replace_target_iter=200,

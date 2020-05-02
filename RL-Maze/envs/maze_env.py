@@ -120,6 +120,9 @@ class MazeEnv:
                         line[3] = table[row+1][col]
                         self._append_line(line, str(state))
 
+    def set_collections_env(self, env):
+        self.collections.set_env(env)
+
     def add_button(self, x, y, width, height, normal_img, active_img, down_img, call_func, text, font, text_color):
         """
         新建一个按钮并加入按钮集合，参数说明同Button类构造方法
