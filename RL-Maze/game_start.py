@@ -25,8 +25,12 @@ class GameInit:
         主菜单界面
         """
         menu = Menu(self.py, self.screen)
+        # 带DQN算法的迷宫界面
+        # menu.add_button(420, 90, 80, 20, menu.short_normal, menu.short_active, menu.short_down,
+        #                 self.game_view, Strings.START, menu.button_font, Color.YELLOW)
+        # 不带DQN算法的迷宫界面
         menu.add_button(420, 90, 80, 20, menu.short_normal, menu.short_active, menu.short_down,
-                        self.game_view, Strings.START, menu.button_font, Color.YELLOW)
+                        self.game_view2, Strings.START, menu.button_font, Color.YELLOW)
         menu.add_button(460, 90, 80, 20, menu.short_normal, menu.short_active, menu.short_down,
                         self.message_view, Strings.ABOUT, menu.button_font, Color.YELLOW)
         menu.add_button(500, 90, 80, 20, menu.short_normal, menu.short_active, menu.short_down,
@@ -79,6 +83,32 @@ class GameInit:
                        double.double_dqn, Strings.Double_DQN, env.button_font, Color.YELLOW)
         env.add_button(5, 575, 20, 20, env.table, env.table, env.table,
                        collections.analysis, ' ', env.button_font, Color.YELLOW)
+        while True:
+            env.update_map()
+
+    def game_view2(self):
+        """
+        进入隐藏DQN与DoubleDQN的游戏界面
+        """
+        collections = Collect(self.py, self.screen, traditional=True)  # 正常显示算法分析曲线图模式
+        # collections = None                              # 不显示算法分析曲线图模式
+
+        env = MazeEnv(self.py, self.screen, collections)
+        env.set_collections_env(env)
+        ql = QL(env, collections)
+        sarsa = Sarsa(env, collections)
+        sarsa_lambda = SarsaLambda(env, collections)
+        # 添加按钮
+        env.add_button(5, 30, 80, 20, env.short_normal, env.short_active, env.short_down,
+                       env.set_refresh, Strings.REFRESH, env.button_font, Color.YELLOW)
+        env.add_button(5, 150, 80, 20, env.short_normal, env.short_active, env.short_down,
+                       ql.q_learning_start, Strings.Q_LEARN, env.button_font, Color.YELLOW)
+        env.add_button(5, 270, 80, 20, env.short_normal, env.short_active, env.short_down,
+                       sarsa.sarsa_start, Strings.SARSA, env.button_font, Color.YELLOW)
+        env.add_button(5, 390, 80, 20, env.short_normal, env.short_active, env.short_down,
+                       sarsa_lambda.sarsa_lambda_start, Strings.S_LAMBDA, env.button_font, Color.YELLOW)
+        env.add_button(5, 510, 80, 20, env.short_normal, env.short_active, env.short_down,
+                       collections.analysis, Strings.ANALYSIS, env.button_font, Color.YELLOW)
         while True:
             env.update_map()
 

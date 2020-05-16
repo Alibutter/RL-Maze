@@ -37,6 +37,7 @@ class MazeEnv:
             self.collections.set_map(self.map_name)             # 锁定迷宫名称
         self._load_img()                                        # 加载按钮图片
         self.buttons = list()                                   # 按钮集合
+        self.path = list()                                      # 保存一次探索的路径
         # print('Init reward_table:')
         # print(self.reward_table)                                # 打印reward_table表
 
@@ -120,6 +121,10 @@ class MazeEnv:
                         self._append_line(line, str(state))
 
     def set_collections_env(self, env):
+        """
+        用于给数据收集器添加环境对象，收集指定环境中的所有数据
+        :param env: 要收集数据的环境
+        """
         self.collections.set_env(env)
 
     def add_button(self, x, y, width, height, normal_img, active_img, down_img, call_func, text, font, text_color):
@@ -130,6 +135,11 @@ class MazeEnv:
         self.buttons.append(button)
 
     def find_button_by_name(self, name):
+        """
+        按指定按钮名称查找按钮
+        :param name: 按钮名称
+        :return: button对象
+        """
         for button in self.buttons:
             if button.text is name:
                 return button
@@ -213,6 +223,21 @@ class MazeEnv:
         rect = ((x, y), (cell_size - 1, cell_size - 1))                     # 单元格边长-1，用于单元格之间留边
         self.py.draw.rect(self.screen, rgb, rect)
 
+    def _draw_circle(self, rgb, row, col, cell_size, cell_padding):
+        """
+        绘制地图单元格
+        :param rgb: 单元格颜色
+        :param row: 单元格所在行
+        :param col: 单元格所在列
+        :param cell_size: 单元格边长
+        :param cell_padding: 迷宫地图距离窗体边缘的边距
+        """
+        x = cell_padding + col * cell_size                  # 单元格左上角x坐标
+        y = cell_padding + row * cell_size + Size.HEADER    # 单元格左上角y坐标
+        rx = int(x + cell_size/2)                           # 圆心x坐标
+        ry = int(y + cell_size/2)                           # 圆心y坐标
+        self.py.draw.circle(self.screen, rgb, (rx, ry), int(cell_size/10), int(cell_size/40))
+
     def draw_map(self):
         """
         绘制地图
@@ -251,6 +276,45 @@ class MazeEnv:
                     self._draw_cell(Color.RED, row, col, cell_size, cell_padding)
                 elif self.map.maze[row][col] == CellWeight.TREASURE:    # 绘制奖励单元
                     self._draw_cell(Color.GOLDEN, row, col, cell_size, cell_padding)
+        self.draw_path()                                                # 绘制路径
+
+    def path_clear(self):
+        """
+        用于清空路径记录
+        """
+        self.path.clear()
+
+    def draw_path(self):
+        """
+        绘制当前探索中记录的路径
+        """
+        if self.path:
+            for position in self.path:
+                row = position[0]
+                col = position[1]
+                rgb = (51, 204, 51)
+                cell_size = int(Size.WIDTH / self.map.width)  # 计算单元格大小和四周边距
+                cell_padding = (Size.WIDTH - (cell_size * self.map.width)) / 2
+                self._draw_circle(rgb, row, col, cell_size, cell_padding)
+
+    def save_path(self, algorithm):
+        """
+        保存算法收敛到的路径到指定算法文件夹
+        :param algorithm: 算法文件名
+        """
+        # 获取起点终点坐标，用于还原地图中起点终点
+        row1 = self.end[0]
+        col1 = self.end[1]
+        row2 = self.begin[0]
+        col2 = self.begin[1]
+        cell_size = int(Size.WIDTH / self.map.width)                        # 计算单元格大小和四周边距
+        cell_padding = (Size.WIDTH - (cell_size * self.map.width)) / 2
+        self.path.pop(0)                                                    # 移除第一个路径记录（起点记录）
+        self.draw_map()                                                     # 绘制迷宫地图
+        self._draw_cell(Color.RED, row1, col1, cell_size, cell_padding)     # 绘制终点
+        self._draw_cell(Color.GREEN, row2, col2, cell_size, cell_padding)   # 绘制起点
+        self.draw_buttons()                                                 # 绘制所有按钮
+        self.py.image.save(self.screen, './data_analysis/path/'+algorithm+'/'+self.map_name + '.png')
 
     def update_map(self):
         """
@@ -304,6 +368,7 @@ class MazeEnv:
         self.step = 0                                           # 智能体步长记录归零
         self.agent = copy.deepcopy(self.begin)                  # 智能体复位
         self.back_agent = copy.deepcopy(self.agent)             # 上次智能体位置复位
+        self.path_clear()                                       # 清空上次探索路径
         self.weight_table[1][0] = CellWeight.AGENT
         self.map.maze = copy.deepcopy(self.weight_table)        # 迷宫矩阵复原
         self.weight_table[1][0] = CellWeight.ROAD
@@ -317,6 +382,8 @@ class MazeEnv:
         :return: state:转移后的新状态 reward:转移后的及时回报奖励值 dead:当前状态是否撞到墙壁
         """
         self.back_agent = copy.deepcopy(self.agent)             # 走下一步之前保存原来位置
+        if self.back_agent not in self.path:
+            self.path.append(self.back_agent)
         if action == Direction.UP:
             if self.agent[0] > 1 and self.agent != self.end:
                 self.agent[0] -= 1
@@ -330,7 +397,7 @@ class MazeEnv:
             if self.agent[1] < Properties.MAZE_LEN-2 or self.agent == [self.end[0], self.end[1]-1]:
                 self.agent[1] += 1
         self.step += 1                                                                  # 智能体移动步长加一
-        cur_reward = float(self.reward_table.loc[str(self.back_agent)][str(action)])      # 执行动作后当前位置的即时奖励
+        cur_reward = float(self.reward_table.loc[str(self.back_agent)][str(action)])    # 执行动作后当前位置的即时奖励
         if cur_reward == CellWeight.TREASURE:
             self._update_reward_table()                                                 # 吃掉一个奖励单元，导致reward表更新
             state = copy.deepcopy(self.agent)
@@ -357,3 +424,5 @@ class MazeEnv:
             reward = CellWeight.WALL/10
         score = math.log(self.step - 1, 2) * -1 + reward
         return score
+
+

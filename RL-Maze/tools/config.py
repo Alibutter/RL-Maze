@@ -58,6 +58,7 @@ class Strings:
     S_LAMBDA = "Sarsa(λ)"           # Sarsa(λ)算法学习按钮
     DQN = "DQN"                     # DQN 算法学习按钮
     Double_DQN = "DoubleDQN"        # DoubleDQN 算法学习按钮
+    ANALYSIS = "Analysis"           # 显示数据分析曲线图表
     START = "Start"
     ABOUT = "About"
     EXIT = "Exit"

@@ -66,12 +66,13 @@ episode_num = 1000
 
 
 class Collect:
-    def __init__(self, py, screen, adjust_params=False):
+    def __init__(self, py, screen, adjust_params=False, traditional=False):
         self.py = py                        # 当前pygame
         self.screen = screen                # 当前屏幕界面
         self.env = None
         self.map_name = None                # 记录迷宫名称
         self.adjust_params = adjust_params  # 是否为调参状态
+        self.traditional = traditional      # 是否只含传统算法
         # (1)得分与步长
         # Q-learning数据
         self.q_step = []
@@ -142,7 +143,7 @@ class Collect:
         :param step: 步长
         :param score: 得分
         """
-        if name is 'q':
+        if name is 'q_learn':
             self.q_step.append(step)
             self.q_score.append(score)
         elif name is 's':
@@ -165,7 +166,7 @@ class Collect:
         :param name:
         :param reward:
         """
-        if name is 'q':
+        if name is 'q_learn':
             self.q_rewards.append(reward)
             rewards = np.array(self.q_rewards)
             last_100_avg = rewards[max(0, episode-100):episode+1].mean()
@@ -213,7 +214,7 @@ class Collect:
         清除算法上次执行的得分和步长曲线
         :param name: 算法名称
         """
-        if name is 'q':
+        if name is 'q_learn':
             self.q_step = []
             self.q_score = []
             self.q_rewards = []
@@ -262,7 +263,7 @@ class Collect:
         保存算法得分的历史曲线
         :param name: 算法名称
         """
-        if name is 'q':                             # 保存QLearn的得分历史曲线
+        if name is 'q_learn':                             # 保存QLearn的得分历史曲线
             if len(self.q_line_his) < lines_max:
                 self.q_line_his.append({'map': self.map_name,
                                         'line': self.q_score})
@@ -332,7 +333,7 @@ class Collect:
         """
         # 将当前的迷宫环境中各个算法学习得分曲线保存
         if len(self.q_score) > 0:
-            self.store_line_his('q')
+            self.store_line_his('q_learn')
         if len(self.s_score) > 0:
             self.store_line_his('s')
         if len(self.sl_score) > 0:
@@ -354,7 +355,7 @@ class Collect:
         将当前的迷宫环境中各个算法的各个曲线数据清空
         """
         # 清除Q-learning数据
-        self.params_clear('q')
+        self.params_clear('q_learn')
         # 清除Sarsa数据
         self.params_clear('s')
         # 清除Sarsa(lambda)数据
@@ -382,11 +383,12 @@ class Collect:
         plt.plot(np.arange(len(self.s_score)), self.s_score, color='red', label='Sarsa', linewidth='1.2')
         plt.plot(np.arange(len(self.sl_score)), self.sl_score, color='skyblue', label='Sarsa(λ)',
                  linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_score)), self.dqn_score, color='#cb33ff', label='DQN', linewidth='1.2',
-                 linestyle='-')
-        plt.plot(np.arange(len(self.double_score)), self.double_score, color='#ff8c1a', label='DDQN',
-                 linewidth='1.2')
-        # plt.ylim(-700, 500)
+        if not self.traditional:
+            plt.plot(np.arange(len(self.dqn_score)), self.dqn_score, color='#cb33ff', label='DQN', linewidth='1.2',
+                     linestyle='-')
+            plt.plot(np.arange(len(self.double_score)), self.double_score, color='#ff8c1a', label='DDQN',
+                     linewidth='1.2')
+
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Scores', fontsize=10)
         plt.xlabel('Episode times', fontsize=10)
@@ -399,9 +401,10 @@ class Collect:
         plt.plot(np.arange(len(self.q_step)), self.q_step, color='green', label='QLearn', linewidth='1.2')
         plt.plot(np.arange(len(self.s_step)), self.s_step, color='red', label='Sarsa', linewidth='1.2')
         plt.plot(np.arange(len(self.sl_step)), self.sl_step, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_step)), self.dqn_step, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
-        plt.plot(np.arange(len(self.double_step)), self.double_step, color='#ff9933', label='DDQN', linewidth='1.2')
-        # plt.ylim(-1, 700)
+        if not self.traditional:
+            plt.plot(np.arange(len(self.dqn_step)), self.dqn_step, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+            plt.plot(np.arange(len(self.double_step)), self.double_step, color='#ff9933', label='DDQN', linewidth='1.2')
+
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Steps', fontsize=10)
         plt.xlabel('Episode times', fontsize=10)
@@ -492,10 +495,10 @@ class Collect:
         plt.plot(np.arange(len(self.q_rewards)), self.q_rewards, color='green', label='QLearn', linewidth='1.2')
         plt.plot(np.arange(len(self.s_rewards)), self.s_rewards, color='red', label='Sarsa', linewidth='1.2')
         plt.plot(np.arange(len(self.sl_rewards)), self.sl_rewards, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
-        plt.plot(np.arange(len(self.dqn_rewards)), self.dqn_rewards, color='#cb33ff', label='DQN', linewidth='1.2',
-                 linestyle='-')
-        plt.plot(np.arange(len(self.double_rewards)), self.double_rewards, color='#ff9933', label='DDQN', linewidth='1.2')
-        # plt.ylim(-1, 700)
+        if not self.traditional:
+            plt.plot(np.arange(len(self.dqn_rewards)), self.dqn_rewards, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
+            plt.plot(np.arange(len(self.double_rewards)), self.double_rewards, color='#ff9933', label='DDQN', linewidth='1.2')
+
         plt.legend()  # 显示图例说明Label标签
         plt.ylabel('Average Rewards', fontsize=10)
         plt.xlabel('Episode times', fontsize=10)
@@ -603,7 +606,7 @@ class Collect:
             warning = "no DQN or DoubleDQN stored his_lines in different mazes, so the window \"Self " \
                       "Loss Compared In His_maze\" won't show!"
         if len(self.dqn_loss_line_his) > num or len(self.double_loss_line_his) > num:
-            plt.figure(figure_title, figsize=(6, 4))
+            plt.figure(figure_title, figsize=(10, 5))
             plt.subplot(1, 2, 1)
             algorithm_analysis('DQN Loss Analysis', self.dqn_loss_line_his, loss=True)
             plt.subplot(1, 2, 2)

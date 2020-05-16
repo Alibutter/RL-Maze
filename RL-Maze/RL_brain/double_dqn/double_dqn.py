@@ -20,6 +20,7 @@ class DoubleDQN:
         self.env.agent_restart()                                                    # 先将智能体复位
         self.env.buttons_reset(Strings.Double_DQN)                                  # 除按下的按钮外，将其他按钮状态恢复正常
         self.env.QT = None                                                          # 将Env中的QT对象置空
+        self.env.path_clear()                                                       # 清除其他算法残留路径记录
         if self.collections:                                                        # 清空收集的旧数据
             self.collections.params_clear('double')
         eval_model = EvalModel(num_actions=self.env.n_actions)
@@ -43,7 +44,7 @@ class DoubleDQN:
     def update(self):
         button = self.env.find_button_by_name(Strings.Double_DQN)
         step_sum = 0                                                                # 记录智能体移动步数之和
-        for episode in range(200):
+        for episode in range(800):
             episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("DoubleDQN-Learning has been stopped by being interrupted")
@@ -64,12 +65,13 @@ class DoubleDQN:
                 self.env.QT.store_transition(self.env.back_agent, action, reward, self.env.agent)     # 添加到经验池
 
                 # self.env.QT.learn()
-                if step_sum > 50 and step_sum % 10 == 0:
+                if step_sum > 200 and step_sum % 10 == 0:
                     self.env.QT.learn(observation_, self.env.reward_table)
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
                     episode_step = self.env.step                                    # 获取结束时的步长
                     score = self.env.score()                                        # 获取结束时的分数
+
                     if self.env.agent == self.env.end:
                         terminal = 'to ***EXIT***'
                     else:

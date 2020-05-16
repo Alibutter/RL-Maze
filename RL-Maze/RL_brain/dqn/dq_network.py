@@ -264,7 +264,7 @@ def filter_max_data(states, q_values, reward_table, index=False):
         # print('a=%s' % a)
         return a
     else:
-        # print('q=%s' % q)
+        # print('q_learn=%s' % q_learn)
         return q
 
 
