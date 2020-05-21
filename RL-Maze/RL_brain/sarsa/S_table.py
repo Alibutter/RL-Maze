@@ -3,7 +3,7 @@ import pandas as pd
 from tools.config import CellWeight
 
 
-class QTable:
+class STable:
     def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.99, e_greedy_increment=None):
         self.actions = actions          # 动作集合
         self.alpha = learning_rate      # 即学习效率α，小于1(alpha越大，保留之前训练效果越少。alpha为0，Q[s, a]值不变；alpha为1时，完全抛弃了原来的值)
@@ -12,6 +12,20 @@ class QTable:
         self.epsilon_increment = e_greedy_increment     # 贪婪因子的动态增长值
         self.epsilon = 0.95 if self.epsilon_increment is not None else self.e_greedy     # 贪婪因子，选择最优值的概率
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)             # Q_table表初始化，记录学习的Q值
+
+    def sarsa_learn(self, s, a, r, s_, a_):
+        """
+        Sarsa算法
+        :param s: 当前状态
+        :param a: 当前状态下采取的动作
+        :param r: 动作后的即时奖励
+        :param s_: 动作后的状态
+        :param a_: 新状态下采取的新动作
+        """
+        self.check_state_exist(s_)
+        # 更新Q-table表
+        self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a])
+        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
 
     def filter_data(self, state, reward_table, random):
         """
@@ -27,6 +41,10 @@ class QTable:
         qt = qt.loc[columns]
         if random:
             random_i = np.random.choice(columns)
+            # if len(qt.loc[qt[state] != maxnum, :].index):
+            #     random_i = np.random.choice(qt.loc[qt[state] != maxnum, :].index)
+            # else:
+            #     random_i = np.random.choice(columns)
         else:
             maxnum = qt[state].loc[columns].max()
             random_i = np.random.choice(qt.loc[qt[state] == maxnum, :].index)
@@ -40,6 +58,9 @@ class QTable:
         :param observation: 当前状态
         :return:
         """
+        rt = reward_table.T
+        columns = rt.loc[rt[observation] != CellWeight.STOP, :].index.astype(int)
+        a_num = len(columns)
         self.check_state_exist(observation)
         # print('choose_action at observation-->{0}'.format(observation))
 
@@ -80,30 +101,3 @@ class QTable:
             )
             # 将当前状态的各个动作初始值加入Q_table表
             self.q_table = self.q_table.append(new_line)
-
-    def q_learn(self, s, a, r, s_):
-        """
-        Q-learning算法
-        :param s: 当前状态
-        :param a: 当前状态下采取的动作
-        :param r: 动作后的即时奖励
-        :param s_: 动作后的状态
-        """
-        self.check_state_exist(s_)
-        # 更新Q-table表
-        self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, :].max() - self.q_table.loc[s, a])
-        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy
-
-    def sarsa_learn(self, s, a, r, s_, a_):
-        """
-        Sarsa算法
-        :param s: 当前状态
-        :param a: 当前状态下采取的动作
-        :param r: 动作后的即时奖励
-        :param s_: 动作后的状态
-        :param a_: 新状态下采取的新动作
-        """
-        self.check_state_exist(s_)
-        # 更新Q-table表
-        self.q_table.loc[s, a] += self.alpha * (r + self.gamma * self.q_table.loc[s_, a_] - self.q_table.loc[s, a])
-        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.e_greedy else self.e_greedy

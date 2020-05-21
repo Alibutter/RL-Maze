@@ -489,7 +489,7 @@ class Collect:
 
     def different_reward_compared(self):
         """
-        DQN与DoubleDQN算法的reward曲线对比
+        算法的reward曲线对比
         """
         plt.title('Reward Analysis', fontsize=10)
         plt.plot(np.arange(len(self.q_rewards)), self.q_rewards, color='green', label='QLearn', linewidth='1.2')
@@ -541,31 +541,31 @@ class Collect:
         if len(self.q_line_his) > 0:
             # plt.figure("Same Algorithm In His_maze")
             # plt.subplot(2, 3, 1)
-            plt.figure("QLearn Scores In His_maze")
+            plt.figure("QLearn Scores In His_maze", figsize=(10, 5))
             algorithm_analysis('QLearn Analysis', self.q_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/q_learn/'+now+'.png')
             # plt.subplot(2, 3, 2)
         if len(self.s_line_his) > 0:
-            plt.figure("Sarsa Scores In His_maze")
+            plt.figure("Sarsa Scores In His_maze", figsize=(10, 5))
             algorithm_analysis('Sarsa Analysis', self.s_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/sarsa/'+now+'.png')
             # plt.subplot(2, 3, 3)
         if len(self.sl_line_his) > 0:
-            plt.figure("Sarsa(λ) Scores In His_maze")
+            plt.figure("Sarsa(λ) Scores In His_maze", figsize=(10, 5))
             algorithm_analysis('Sarsa(λ) Analysis', self.sl_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/sarsa_lambda/'+now+'.png')
             # plt.subplot(2, 3, 4)
         if len(self.dqn_line_his) > 0:
-            plt.figure("DQN Scores In His_maze")
+            plt.figure("DQN Scores In His_maze", figsize=(10, 5))
             algorithm_analysis('DQN Analysis', self.dqn_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/dqn/'+now+'.png')
             # plt.subplot(2, 3, 5)
         if len(self.double_line_his) > 0:
-            plt.figure("DoubleDQN Scores In His_maze")
+            plt.figure("DoubleDQN Scores In His_maze", figsize=(10, 5))
             algorithm_analysis('DoubleDQN Analysis', self.double_line_his)
             now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
             plt.savefig('./data_analysis/self_scores/double_dqn/'+now+'.png')

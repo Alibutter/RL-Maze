@@ -34,15 +34,15 @@ class Maze:
         :param value: 单元格所赋权值类型
         """
         if value == CellWeight.WALL:
-            self.maze[row][col] = CellWeight.WALL       # 设置为墙体单元
+            self.maze[row][col] = CellWeight.WALL  # 设置为墙体单元
         elif value == CellWeight.ROAD:
-            self.maze[row][col] = CellWeight.ROAD       # 设置为路单元
+            self.maze[row][col] = CellWeight.ROAD  # 设置为路单元
         elif value == CellWeight.AGENT:
-            self.maze[row][col] = CellWeight.AGENT      # 设置为起点单元
+            self.maze[row][col] = CellWeight.AGENT  # 设置为起点单元
         elif value == CellWeight.FINAL:
-            self.maze[row][col] = CellWeight.FINAL      # 设置为终点单元
+            self.maze[row][col] = CellWeight.FINAL  # 设置为终点单元
         else:
-            self.maze[row][col] = CellWeight.TREASURE   # 设置为奖励单元
+            self.maze[row][col] = CellWeight.TREASURE  # 设置为奖励单元
 
     def visited(self, row, col):
         """
@@ -57,8 +57,8 @@ class Maze:
         """
         打印迷宫地图(用于测试迷宫矩阵的数据)
         """
-        for y in range(self.height):    # 按行遍历
-            print(self.maze[y])         # 输出整行
+        for y in range(self.height):  # 按行遍历
+            print(self.maze[y])  # 输出整行
 
 
 def random_pick(probability):
@@ -79,14 +79,14 @@ def random_delete_wall(maze, probability):
     :param maze: 迷宫
     :param probability: 清除概率
     """
-    for row in range((maze.height - 1)//2):
-        for col in range((maze.width - 1)//2):
+    for row in range((maze.height - 1) // 2):
+        for col in range((maze.width - 1) // 2):
             if row > 0 and col > 0:
-                if maze.visited(2*row-1, 2*col) \
-                        and maze.visited(2*row+1, 2*col) \
-                        and maze.visited(2*row, 2*col-1) \
-                        and maze.visited(2*row, 2*col+1) \
-                        and random_pick(probability):       # 检测是否为四周为ROAD的独立墙壁，若是则按要求概率删除该墙壁单元
+                if maze.visited(2 * row - 1, 2 * col) \
+                        and maze.visited(2 * row + 1, 2 * col) \
+                        and maze.visited(2 * row, 2 * col - 1) \
+                        and maze.visited(2 * row, 2 * col + 1) \
+                        and random_pick(probability):  # 检测是否为四周为ROAD的独立墙壁，若是则按要求概率删除该墙壁单元
                     maze.set_cell(2 * row, 2 * col, CellWeight.ROAD)
 
 
@@ -108,17 +108,17 @@ def check_neighbors(maze, x, y, width, height, checklist):
     (即是否有向相邻ROAD单元未被打通尚且为WALL)
     ROAD单元所成矩阵中位置计算迷宫地图中位置的公式: maze (2 * x + 1, 2 * y + 1) = ROAD (x, y)
     """
-    if x > 0:           # 未越过上边界
-        if not maze.visited(2 * (x - 1) + 1, 2 * y + 1) or random_pick(0.1):    # 上边相邻ROAD未访问或触发概率性重复向上访问
+    if x > 0:  # 未越过上边界
+        if not maze.visited(2 * (x - 1) + 1, 2 * y + 1) or random_pick(0.1):  # 上边相邻ROAD未访问或触发概率性重复向上访问
             directions.append(Direction.UP)
     if x < height - 1:  # 未越过地图下边界
-        if not maze.visited(2 * (x + 1) + 1, 2 * y + 1) or random_pick(0.1):    # 下边相邻ROAD未访问或触发概率性重复向下访问
+        if not maze.visited(2 * (x + 1) + 1, 2 * y + 1) or random_pick(0.1):  # 下边相邻ROAD未访问或触发概率性重复向下访问
             directions.append(Direction.DOWN)
-    if y > 0:           # 未越过左边界
-        if not maze.visited(2 * x + 1, 2 * (y - 1) + 1) or random_pick(0.1):    # 左边相邻ROAD未访问或触发概率性重复向左访问
+    if y > 0:  # 未越过左边界
+        if not maze.visited(2 * x + 1, 2 * (y - 1) + 1) or random_pick(0.1):  # 左边相邻ROAD未访问或触发概率性重复向左访问
             directions.append(Direction.LEFT)
-    if y < width - 1:   # 未越过右边界
-        if not maze.visited(2 * x + 1, 2 * (y + 1) + 1) or random_pick(0.1):   # 右边相邻ROAD未访问或触发概率性重复向右访问
+    if y < width - 1:  # 未越过右边界
+        if not maze.visited(2 * x + 1, 2 * (y + 1) + 1) or random_pick(0.1):  # 右边相邻ROAD未访问或触发概率性重复向右访问
             directions.append(Direction.RIGHT)
     """
     如果有未被访问的相邻ROAD单元
@@ -128,19 +128,19 @@ def check_neighbors(maze, x, y, width, height, checklist):
     """
     if len(directions):
         neighbor = choice(directions)
-        if neighbor == Direction.LEFT or (random_pick(0.1) and (2*(y-1)+1) > 0):
+        if neighbor == Direction.LEFT or (random_pick(0.1) and (2 * (y - 1) + 1) > 0):
             maze.set_cell(2 * x + 1, 2 * y, CellWeight.ROAD)
             maze.set_cell(2 * x + 1, 2 * (y - 1) + 1, CellWeight.ROAD)
             checklist.append((x, y - 1))
-        elif neighbor == Direction.UP or (random_pick(0.1) and (2*(x-1)+1) > 0):
+        elif neighbor == Direction.UP or (random_pick(0.1) and (2 * (x - 1) + 1) > 0):
             maze.set_cell(2 * x, 2 * y + 1, CellWeight.ROAD)
             maze.set_cell(2 * (x - 1) + 1, 2 * y + 1, CellWeight.ROAD)
             checklist.append((x - 1, y))
-        elif neighbor == Direction.RIGHT or (random_pick(0.1) and (2*(y+1)+1) < maze.width-1):
+        elif neighbor == Direction.RIGHT or (random_pick(0.1) and (2 * (y + 1) + 1) < maze.width - 1):
             maze.set_cell(2 * x + 1, 2 * y + 2, CellWeight.ROAD)
             maze.set_cell(2 * x + 1, 2 * (y + 1) + 1, CellWeight.ROAD)
             checklist.append((x, y + 1))
-        elif neighbor == Direction.DOWN or (random_pick(0.1) and (2*(x+1)+1) < maze.height-1):
+        elif neighbor == Direction.DOWN or (random_pick(0.1) and (2 * (x + 1) + 1) < maze.height - 1):
             maze.set_cell(2 * x + 2, 2 * y + 1, CellWeight.ROAD)
             maze.set_cell(2 * (x + 1) + 1, 2 * y + 1, CellWeight.ROAD)
             checklist.append((x + 1, y))
@@ -156,10 +156,10 @@ def random_prime(maze, width, height):
     :param height: ROAD单元组成矩阵的高
     """
     # 随机起点
-    start_row, start_col = randint(0, height-1), randint(0, width-1)
+    start_row, start_col = randint(0, height - 1), randint(0, width - 1)
     # 将该起点转化为一个ROAD所在单元格并加入检查列表
     maze.set_cell(2 * start_row + 1, 2 * start_col + 1, CellWeight.ROAD)
-    checklist = [(start_row, start_col)]        # 存储已访问ROAD单元格的检查列表
+    checklist = [(start_row, start_col)]  # 存储已访问ROAD单元格的检查列表
     while len(checklist):
         # 当检查列表非空时，随机从列表中取出一个迷宫单元
         (row, col) = choice(checklist)
@@ -176,8 +176,8 @@ def restart_draw_map(maze, width, height):
     :param width: ROAD单元矩阵宽
     :param height: ROAD单元矩阵高
     """
-    maze.reset_maze(CellWeight.WALL)        # 重置为WALL矩阵
-    random_prime(maze, width, height)       # 开始主循环
+    maze.reset_maze(CellWeight.WALL)  # 重置为WALL矩阵
+    random_prime(maze, width, height)  # 开始主循环
 
 
 def set_begin_end(maze):
@@ -188,8 +188,8 @@ def set_begin_end(maze):
     """
     maze.set_cell(1, 0, CellWeight.AGENT)
     begin = [1, 0]
-    maze.set_cell(maze.height-2, maze.width - 1, CellWeight.FINAL)
-    end = [maze.height-2, maze.width - 1]
+    maze.set_cell(maze.height - 2, maze.width - 1, CellWeight.FINAL)
+    end = [maze.height - 2, maze.width - 1]
     return begin, end
 
 
@@ -212,8 +212,8 @@ def set_treasure_by_amount(maze, amount):
     :param amount: 全图出现奖励单元的数目
     """
     while amount:
-        row = randint(1, maze.height-1)
-        col = randint(1, maze.width-1)
+        row = randint(1, maze.height - 1)
+        col = randint(1, maze.width - 1)
         if maze.maze[row][col] == CellWeight.ROAD:
             maze.set_cell(row, col, CellWeight.TREASURE)
             amount -= 1
@@ -228,20 +228,20 @@ def maze_creator(width, height, amount=None, probability=None):
     :param amount: 奖励单元个数
     :param probability: 奖励单元在全图出现的概率
     """
-    maze = Maze(width, height)                  # 初始化迷宫地图
-    restart_draw_map(maze, (maze.width-1)//2, (maze.height-1)//2)       # 刷新地图
-    random_delete_wall(maze, 1)                 # 删除遗留的独立墙体单元
+    maze = Maze(width, height)  # 初始化迷宫地图
+    restart_draw_map(maze, (maze.width - 1) // 2, (maze.height - 1) // 2)  # 刷新地图
+    random_delete_wall(maze, 1)  # 删除遗留的独立墙体单元
     if amount:
-        set_treasure_by_amount(maze, amount)    # 按指定数目随机设置奖励单元
+        set_treasure_by_amount(maze, amount)  # 按指定数目随机设置奖励单元
     if probability:
-        set_treasure_by_probability(maze, probability)     # 按指定概率随机设置奖励单元
-    begin, end = set_begin_end(maze)            # 设起点终点
+        set_treasure_by_probability(maze, probability)  # 按指定概率随机设置奖励单元
+    begin, end = set_begin_end(maze)  # 设起点终点
     print('Maze map:')
-    maze.print()                                # 打印迷宫矩阵
+    maze.print()  # 打印迷宫矩阵
     now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
     map_name = 'map' + now
     # 选择测试的固定迷宫
-    # maze.maze = m9910
+    # maze.maze = m9902
     high_score()
     return maze, begin, end, map_name
 
@@ -252,27 +252,32 @@ def high_score():
     :return:
     """
     length = Properties.MAZE_LEN
-    shortest_step = (length-2) * 2
-    reward = CellWeight.FINAL/10
-    score = math.log(shortest_step-1, 2) * -1 + reward
+    shortest_step = (length - 2) * 2
+    reward = CellWeight.FINAL / 10
+    score = math.log(shortest_step - 1, 2) * -1 + reward
     print('expect_score=%s' % score)
     return score
 
 
 # 以下仅用于测试使用的固定迷宫，不使用时将生成一个随机迷宫
 # ROAD 奖励值为0时，可用于5x5规模测试的固定迷宫
-m5501 = [[-5, -5, -5, -5, -5],
-        [-3, 0, 0, 0, -5],
-        [-5, 0, 5, 0, -5],
-        [-5, 0, 0, 0, 50],
-        [-5, -5, -5, -5, -5]]
+m5501 = [
+    [-5, -5, -5, -5, -5],
+    [-3, 0, 0, 0, -5],
+    [-5, 0, 5, 0, -5],
+    [-5, 0, 0, 0, 50],
+    [-5, -5, -5, -5, -5]
+]
 
 # ROAD 奖励值为-1时，可用于5x5规模测试的固定迷宫
-m5502 = [[-5, -5, -5, -5, -5],
-             [-3, -1, -1, -1, -5],
-             [-5, -1, 5, -5, -5],
-             [-5, -1, -1, -1, 50],
-             [-5, -5, -5, -5, -5]]
+m5502 = [
+    [-5, -5, -5, -5, -5],
+    [-3, -1, -1, -1, -5],
+    [-5, -1, 5, -5, -5],
+    [-5, -1, -1, -1, 50],
+    [-5, -5, -5, -5, -5]
+]
+
 
 # ROAD 奖励值为0时，可用于9x9规模测试的固定迷宫 1（单路口多，难走出）
 m9901 = [
@@ -290,13 +295,13 @@ m9901 = [
 # ROAD 奖励值为0时，可用于9x9规模测试的固定迷宫 2
 m9902 = [
     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
-    [-3, 0, 0, 0, 0, 0, 0, 0, -5],
-    [-5, -5, -5, -5, -5, 0, 0, 0, -5],
+    [-3, 0, 0, 0, -5, 0, -5, 0, -5],
+    [-5, -5, -5, 0, -5, 0, -5, 0, -5],
     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, -5, -5, -5, -5, -5, 0, -5],
     [-5, 0, 0, 0, 0, 0, 0, 0, -5],
-    [-5, 0, 0, 0, 0, 0, 0, 0, -5],
-    [-5, 0, 0, 0, -5, -5, -5, -5, -5],
-    [-5, 0, 0, 0, 0, 0, 0, 0, 50],
+    [-5, 0, -5, -5, -5, 0, -5, 0, -5],
+    [-5, 0, -5, 0, 0, 0, -5, 0, 50],
     [-5, -5, -5, -5, -5, -5, -5, -5, -5]
 ]
 
@@ -404,7 +409,7 @@ m9910 = [
 ]
 
 # 9x9规模一个Sarsa走不出来的迷宫
-maze9911 = [
+m9911 = [
     [-5, -5, -5, -5, -5, -5, -5, -5, -5],
     [-3, 0, 0, 0, 0, 0, 0, 0, -5],
     [-5, 0, 0, 0, 0, 0, -5, -5, -5],
@@ -413,5 +418,56 @@ maze9911 = [
     [-5, 0, 0, 0, -5, 0, -5, 0, -5],
     [-5, 0, -5, -5, -5, 0, -5, 0, -5],
     [-5, 0, 0, 0, 0, 0, 0, 0, 50],
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+]
+
+# 9x9规模用于收集数据的稀疏地图*******************************
+m9912 = [
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    [-3, 0, 0, 0, 0, 0, 0, 0, -5],
+    [-5, -5, -5, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, -5, 0, 0, 0, -5],
+    [-5, 0, 0, 0, -5, 0, 0, 0, -5],
+    [-5, 0, -5, 0, -5, -5, -5, 0, -5],
+    [-5, 0, -5, 0, 0, 0, 0, 0, 50],
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+]
+
+# 测试Sarsa的地图
+m9913 = [
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    [-3, 0, -5, 0, 0, 0, -5, 0, -5],
+    [-5, 0, -5, -5, -5, 0, -5, 0, -5],
+    [-5, 0, -5, 0, -5, 0, 0, 0, -5],
+    [-5, 0, -5, 0, -5, 0, -5, 0, -5],
+    [-5, 0, 0, 0, 0, 0, -5, 0, -5],
+    [-5, -5, -5, 0, -5, 0, -5, 0, -5],
+    [-5, 0, 0, 0, -5, 0, 0, 0, 50],
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+]
+
+# 测试Sarsa在两种策略面前的表现
+m9914 = [
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    [-3, 0, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, -5, -5, -5, 0, -5],
+    [-5, 0, 0, 0, 0, 0, -5, 0, -5],
+    [-5, 0, 0, 0, -5, 0, -5, 0, -5],
+    [-5, 0, 0, 0, -5, 0, 0, 0, -5],
+    [-5, 0, 0, 0, -5, -5, -5, 0, -5],
+    [-5, 0, 0, 0, 0, 0, -5, 0, 50],
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5]
+]
+
+m9915 = [
+    [-5, -5, -5, -5, -5, -5, -5, -5, -5],
+    [-3, 0, -5, 0, 0, 0, 0, 0, -5],
+    [-5, 0, -5, -5, -5, 0, -5, 0, -5],
+    [-5, 0, 0, 0, 0, 0, -5, 0, -5],
+    [-5, 0, -5, 0, 0, 0, -5, 0, -5],
+    [-5, 0, -5, 0, 0, 0, -5, 0, -5],
+    [-5, 0, -5, 0, 0, 0, -5, 0, -5],
+    [-5, 0, 0, 0, 0, 0, -5, 0, 50],
     [-5, -5, -5, -5, -5, -5, -5, -5, -5]
 ]
