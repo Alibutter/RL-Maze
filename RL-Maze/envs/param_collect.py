@@ -379,10 +379,10 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习得分对比曲线
         """
         plt.title('Scores Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_score)), self.q_score, color='green', label='QLearn', linewidth='1.2')
-        plt.plot(np.arange(len(self.s_score)), self.s_score, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_score)), self.sl_score, color='skyblue', label='Sarsa(λ)',
-                 linewidth='1.2')
+        plt.plot(np.arange(len(self.q_score)), self.q_score, color='green', label='QLearn', linewidth='1.3')
+        plt.plot(np.arange(len(self.s_score)), self.s_score, color='red', label='Sarsa', linewidth='1.3')
+        plt.plot(np.arange(len(self.sl_score)), self.sl_score, color='#6699ff', label='Sarsa(λ)',
+                 linewidth='1.3')
         if not self.traditional:
             plt.plot(np.arange(len(self.dqn_score)), self.dqn_score, color='#cb33ff', label='DQN', linewidth='1.2',
                      linestyle='-')
@@ -398,9 +398,9 @@ class Collect:
         不同算法在相同迷宫环境中，每次学习步长对比曲线
         """
         plt.title('Steps Analysis', fontsize=10)
-        plt.plot(np.arange(len(self.q_step)), self.q_step, color='green', label='QLearn', linewidth='1.2')
-        plt.plot(np.arange(len(self.s_step)), self.s_step, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_step)), self.sl_step, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.q_step)), self.q_step, color='green', label='QLearn', linewidth='1.3')
+        plt.plot(np.arange(len(self.s_step)), self.s_step, color='red', label='Sarsa', linewidth='1.3')
+        plt.plot(np.arange(len(self.sl_step)), self.sl_step, color='#6699ff', label='Sarsa(λ)', linewidth='1.3')
         if not self.traditional:
             plt.plot(np.arange(len(self.dqn_step)), self.dqn_step, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
             plt.plot(np.arange(len(self.double_step)), self.double_step, color='#ff9933', label='DDQN', linewidth='1.2')
@@ -494,7 +494,7 @@ class Collect:
         plt.title('Reward Analysis', fontsize=10)
         plt.plot(np.arange(len(self.q_rewards)), self.q_rewards, color='green', label='QLearn', linewidth='1.2')
         plt.plot(np.arange(len(self.s_rewards)), self.s_rewards, color='red', label='Sarsa', linewidth='1.2')
-        plt.plot(np.arange(len(self.sl_rewards)), self.sl_rewards, color='skyblue', label='Sarsa(λ)', linewidth='1.2')
+        plt.plot(np.arange(len(self.sl_rewards)), self.sl_rewards, color='#6699ff', label='Sarsa(λ)', linewidth='1.2')
         if not self.traditional:
             plt.plot(np.arange(len(self.dqn_rewards)), self.dqn_rewards, color='#cb33ff', label='DQN', linewidth='1.2', linestyle='-')
             plt.plot(np.arange(len(self.double_rewards)), self.double_rewards, color='#ff9933', label='DDQN', linewidth='1.2')
@@ -636,7 +636,7 @@ class Collect:
         plt.show()
 
 
-color = ['red', 'skyblue', 'green', 'gold', 'purple', 'black', 'orange', 'brown', 'pink', 'gray']
+color = ['red', '#6699ff', 'green', 'gold', 'purple', 'black', 'orange', 'brown', 'pink', 'gray']
 
 
 def algorithm_analysis(title, line_his, loss=False):

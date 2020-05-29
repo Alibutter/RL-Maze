@@ -236,7 +236,7 @@ class MazeEnv:
         y = cell_padding + row * cell_size + Size.HEADER    # 单元格左上角y坐标
         rx = int(x + cell_size/2)                           # 圆心x坐标
         ry = int(y + cell_size/2)                           # 圆心y坐标
-        self.py.draw.circle(self.screen, rgb, (rx, ry), int(cell_size/10), int(cell_size/40))
+        self.py.draw.circle(self.screen, rgb, (rx, ry), int(cell_size/6), int(cell_size/25))
 
     def draw_map(self):
         """
