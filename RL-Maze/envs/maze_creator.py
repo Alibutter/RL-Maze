@@ -241,7 +241,7 @@ def maze_creator(width, height, amount=None, probability=None, no=0):
     now = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
     map_name = 'map' + now
     # 选择测试的固定迷宫
-    # maze.maze = maze1
+    maze.maze = m9904
     high_score()
     return maze, begin, end, map_name
 

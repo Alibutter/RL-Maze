@@ -49,11 +49,11 @@ class QL:
                 observation_, reward = self.env.agent_step(action)                  # 智能体执行动作后，返回新的状态、即时奖励
                 episode_reward += reward
 
-                if not convergence >= 3 and not early_stopping:
-                    self.env.QT.q_learn(str(self.env.back_agent), action, reward, str(observation_))    # 强化学习更新Q表
-                elif not early_stopping:
-                    early_stopping = True
-                    print('convergence early stopping: True')
+                # if not convergence >= 3 and not early_stopping:
+                self.env.QT.q_learn(str(self.env.back_agent), action, reward, str(observation_))    # 强化学习更新Q表
+                # elif not early_stopping:
+                #     early_stopping = True
+                #     print('convergence early stopping: True')
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
                     step = self.env.step                                            # 获取结束时的步长

@@ -29,7 +29,7 @@ class Sarsa:
         early_stopping = False                                                      # 是否提前暂停继续收敛
         max_score = -999                                                            # 记录历史最高得分
         last_score = 0                                                              # 记录上次得分
-        for episode in range(10000):
+        for episode in range(1000):
             episode_reward = 0
             if not button.status == Status.DOWN:                                    # 检查按钮状态变化（控制算法执行的开关）
                 # print("Sarsa has been stopped by being interrupted")
@@ -49,13 +49,13 @@ class Sarsa:
 
                 # 在新状态下选择新的动作
                 action_ = self.env.QT.choose_action(self.env.reward_table, str(self.env.agent))  # 加动作集限制的动作决策
-                # action = self.env.QT.choose_action_unlimited(str(self.env.agent))   # 不加动作集限制的动作决策
+                # action_ = self.env.QT.choose_action_unlimited(str(self.env.agent))   # 不加动作集限制的动作决策
 
-                if not convergence >= 3 and not early_stopping:
-                    self.env.QT.sarsa_learn(str(self.env.back_agent), action, reward, str(self.env.agent), action_)     # 强化学习更新Q表
-                elif not early_stopping:
-                    early_stopping = True
-                    print('convergence early stopping: True')
+                # if not convergence >= 3 and not early_stopping:
+                self.env.QT.sarsa_learn(str(self.env.back_agent), action, reward, str(self.env.agent), action_)     # 强化学习更新Q表
+                # elif not early_stopping:
+                #     early_stopping = True
+                #     print('convergence early stopping: True')
                 action = action_                                                    # 替换旧的action
 
                 if observation_ is 'terminal':                                      # 若智能体撞墙或到达终点，一次学习过程结束
